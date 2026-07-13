@@ -45,18 +45,20 @@ def pro_param_len(code: int) -> int | None:
 
 
 # --- Local echo control (PRO3 "aiguillage" / routing) ----------------------
-# The Minitel can loop the keyboard straight to its own screen (local echo). When
-# the remote service also echoes (MiniPavi, Retrocampus do), that doubles every
-# character. Disabling the screen<-keyboard routing leaves keyboard->peripheral
-# and peripheral->screen intact, so keystrokes still reach the host and the
-# service's echo still shows — just once.
+# The Minitel loops the keyboard back to its own screen (local echo). When the
+# remote service also echoes (MiniPavi, Retrocampus do), that doubles every
+# character. This is the EXACT sequence used by the pR-0000 reference bridge,
+# which is proven to work on real terminals (including this project's NFZ 300):
+#   ESC 3B 60 58 52  (PRO3, aiguillage OFF, receiver=screen 0x58, emitter 0x52)
+# The final byte is 0x52, not 0x51 — an earlier spec-derived guess used 0x51 and
+# did NOT silence the echo on hardware.
 _AIGUILLAGE_OFF = 0x60
 _AIGUILLAGE_ON = 0x61
 _RECEPTION_ECRAN = 0x58  # screen as receiver
-_EMISSION_CLAVIER = 0x51  # keyboard as emitter
+_EMISSION = 0x52  # emitter code the reference bridge uses for this routing
 
-LOCAL_ECHO_OFF = bytes((ESC, PRO3, _AIGUILLAGE_OFF, _RECEPTION_ECRAN, _EMISSION_CLAVIER))
-LOCAL_ECHO_ON = bytes((ESC, PRO3, _AIGUILLAGE_ON, _RECEPTION_ECRAN, _EMISSION_CLAVIER))
+LOCAL_ECHO_OFF = bytes((ESC, PRO3, _AIGUILLAGE_OFF, _RECEPTION_ECRAN, _EMISSION))
+LOCAL_ECHO_ON = bytes((ESC, PRO3, _AIGUILLAGE_ON, _RECEPTION_ECRAN, _EMISSION))
 
 
 # Offset added to row/column numbers in a US positioning sequence.

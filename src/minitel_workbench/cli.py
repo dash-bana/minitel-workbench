@@ -227,6 +227,13 @@ def cmd_connect(args: argparse.Namespace) -> int:
         from .videotex import constants as C
 
         link.write(C.LOCAL_ECHO_OFF)
+        # The terminal replies with a PRO acknowledgement on the keyboard
+        # channel; drain it so the bridge doesn't forward it to the service as
+        # spurious input (it would show up as typed characters, e.g. "CXM").
+        time.sleep(0.3)
+        for _ in range(50):
+            if not link.read(256):
+                break
 
     recorder = None
     if settings.record_sessions or args.record:
