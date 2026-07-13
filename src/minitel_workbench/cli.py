@@ -220,6 +220,14 @@ def cmd_connect(args: argparse.Namespace) -> int:
         print(str(exc))
         return 1
 
+    # Stop the Minitel echoing its own keystrokes; the service echoes them back,
+    # and both together double every character. --local-echo keeps it on for the
+    # rare service that doesn't echo.
+    if not args.local_echo:
+        from .videotex import constants as C
+
+        link.write(C.LOCAL_ECHO_OFF)
+
     recorder = None
     if settings.record_sessions or args.record:
         from .recording import Recorder
@@ -639,6 +647,11 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p_connect.add_argument("--mirror", action="store_true", help="show the last screen on exit")
     p_connect.add_argument("--record", action="store_true", help="record this session")
+    p_connect.add_argument(
+        "--local-echo",
+        action="store_true",
+        help="keep the Minitel's local echo on (only for services that don't echo)",
+    )
     p_connect.add_argument(
         "--no-reconnect", action="store_true", help="do not auto-reconnect if the service drops"
     )

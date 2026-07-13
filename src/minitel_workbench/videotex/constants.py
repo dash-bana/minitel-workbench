@@ -44,6 +44,21 @@ def pro_param_len(code: int) -> int | None:
     return _PRO_PARAM_LEN.get(code)
 
 
+# --- Local echo control (PRO3 "aiguillage" / routing) ----------------------
+# The Minitel can loop the keyboard straight to its own screen (local echo). When
+# the remote service also echoes (MiniPavi, Retrocampus do), that doubles every
+# character. Disabling the screen<-keyboard routing leaves keyboard->peripheral
+# and peripheral->screen intact, so keystrokes still reach the host and the
+# service's echo still shows — just once.
+_AIGUILLAGE_OFF = 0x60
+_AIGUILLAGE_ON = 0x61
+_RECEPTION_ECRAN = 0x58  # screen as receiver
+_EMISSION_CLAVIER = 0x51  # keyboard as emitter
+
+LOCAL_ECHO_OFF = bytes((ESC, PRO3, _AIGUILLAGE_OFF, _RECEPTION_ECRAN, _EMISSION_CLAVIER))
+LOCAL_ECHO_ON = bytes((ESC, PRO3, _AIGUILLAGE_ON, _RECEPTION_ECRAN, _EMISSION_CLAVIER))
+
+
 # Offset added to row/column numbers in a US positioning sequence.
 POS_OFFSET = 0x40
 
