@@ -32,10 +32,17 @@ PLIST
 cat > "$APP/Contents/MacOS/minitel-workbench" <<'RUN'
 #!/bin/bash
 # Find the project (with its .venv) and open the GUI window.
+#
+# A double-clicked app has nowhere to print, so a failure to open looks like
+# nothing happening at all. Keep the output in a log the user can be pointed at.
+LOG="$HOME/minitel-workbench.log"
+[ -f "$LOG" ] && [ "$(wc -c <"$LOG")" -gt 1000000 ] && rm -f "$LOG"
+
 for DIR in "$HOME/Downloads/minitel-workbench" "$HOME/minitel-workbench" "$HOME/Desktop/minitel-workbench"; do
   if [ -f "$DIR/pyproject.toml" ] && [ -d "$DIR/.venv" ]; then
     cd "$DIR"
-    exec ./.venv/bin/python -m minitel_workbench.gui
+    echo "=== opened $(date)" >>"$LOG"
+    exec ./.venv/bin/python -m minitel_workbench.gui >>"$LOG" 2>&1
   fi
 done
 osascript -e 'display dialog "Could not find the Minitel Workbench project with its .venv. Set it up once (see docs/guides/getting-started.md), then reopen this app." buttons {"OK"} with icon caution'
