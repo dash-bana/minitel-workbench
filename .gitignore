@@ -24,6 +24,11 @@ site/
 # The original uploaded transcript lives in the repo as docs/design/design-notebook.md
 /Minitel Workbench.md
 
+# Claude Code permission settings — personal / machine-specific, keep local.
+# (Broad allow patterns like `ssh *` / `python3 *` should not ship in a shared repo.)
+.claude/settings.json
+.claude/settings.local.json
+
 # Editors
 .idea/
 .vscode/
