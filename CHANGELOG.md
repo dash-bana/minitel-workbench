@@ -5,6 +5,17 @@ All notable changes to this project are documented here. Format loosely follows
 
 ## [Unreleased]
 
+### Added — FTDI setup wizard (first-time cable owners)
+- `minitel setup` (+ GUI "Set up cable" button) detects three states: ready /
+  adapter-plugged-in-but-driver-missing / no-adapter — the "driver missing" case
+  is spotted via raw USB enumeration even when macOS shows no serial port.
+- Guides the driver install step by step, and with `--install` automates the
+  mechanical parts (copy to /Applications with an admin prompt, de-quarantine,
+  launch, open Privacy & Security). `--watch` polls until the driver comes online.
+  macOS still requires the user to click "Allow" — the wizard gets them there and
+  confirms success. `doctor` now flags a plugged-in adapter that needs its driver.
+
+
 ### Changed — GUI mirror now draws in colour (mosaics as sub-blocks)
 - The window's mirror is a Canvas that *draws* the Minitel instead of printing
   glyphs: colour foreground/background, and semigraphic mosaics painted as real

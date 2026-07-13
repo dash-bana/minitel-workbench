@@ -99,10 +99,14 @@ def cmd_doctor(args: argparse.Namespace) -> int:
     )
 
     from .hardware.detect import best_adapter
+    from .hardware.setup import usb_ftdi_present
 
     has_minitel = best_adapter() is not None
+    driver_needed = not has_minitel and usb_ftdi_present()
     if has_minitel:
         print(f"  {ok} Minitel connection detected")
+    elif driver_needed:
+        print(f"  {no} Adapter plugged in, but its driver isn't installed — run: minitel setup")
     else:
         print(f"  {no} No Minitel connection detected (fine for telephone users)")
 
@@ -443,6 +447,54 @@ def cmd_serve(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_setup(args: argparse.Namespace) -> int:
+    import time
+
+    from .hardware.setup import (
+        DRIVER_MISSING,
+        FTDI_VCP_URL,
+        READY,
+        detect,
+        find_installer,
+        guidance,
+        open_privacy_settings,
+        prepare_installer,
+    )
+
+    print("Checking your Minitel connection…\n")
+    st = detect()
+    installer = find_installer() if st.state == DRIVER_MISSING else None
+    for line in guidance(st, installer):
+        print(line)
+
+    if args.install and st.state == DRIVER_MISSING:
+        if not installer:
+            print(f"\nNo installer found — download it first: {FTDI_VCP_URL}")
+            return 1
+        print("\nCopying the installer into /Applications (you'll be asked for your password)…")
+        ok, msg = prepare_installer(installer)
+        print(msg)
+        if ok:
+            open_privacy_settings()
+            print("Opened System Settings — click Allow for the FTDI extension.")
+
+    if args.watch and st.state != READY:
+        print("\nWatching for the driver to come online… (Ctrl-C to stop)")
+        try:
+            while True:
+                time.sleep(3)
+                s = detect()
+                if s.state == READY:
+                    print(
+                        "\n✓ Driver active — your Minitel connection is ready! Try: minitel connect"
+                    )
+                    break
+                print(f"  … not yet (adapter={s.usb_present}, driver={s.driver_active})")
+        except KeyboardInterrupt:
+            print()
+    return 0
+
+
 def cmd_clear(args: argparse.Namespace) -> int:
     import time
 
@@ -588,6 +640,17 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("doctor", help="check your setup").set_defaults(func=cmd_doctor)
     sub.add_parser("demo", help="try the whole stack offline").set_defaults(func=cmd_demo)
     sub.add_parser("clear", help="clear a garbled Minitel screen").set_defaults(func=cmd_clear)
+
+    p_setup = sub.add_parser("setup", help="detect the cable/driver and guide first-time setup")
+    p_setup.add_argument(
+        "--install",
+        action="store_true",
+        help="copy & launch the FTDI installer (asks for password)",
+    )
+    p_setup.add_argument(
+        "--watch", action="store_true", help="wait and report when the driver comes online"
+    )
+    p_setup.set_defaults(func=cmd_setup)
 
     p_call = sub.add_parser("call", help="how to reach a service by telephone")
     p_call.add_argument("service", help="service id or name")

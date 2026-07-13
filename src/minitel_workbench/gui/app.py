@@ -56,6 +56,7 @@ class WorkbenchApp:
             tools, text="Disconnect", command=self._disconnect, state="disabled"
         )
         self.disconnect_btn.pack(side="left", padx=3)
+        ttk.Button(tools, text="Set up cable", command=self._setup).pack(side="left", padx=3)
         ttk.Button(tools, text="Clear screen", command=self._clear).pack(side="left", padx=3)
         ttk.Button(tools, text="Telephone", command=self._telephone).pack(side="left", padx=3)
         ttk.Button(tools, text="Link info", command=self._link_info).pack(side="left", padx=3)
@@ -100,6 +101,18 @@ class WorkbenchApp:
         self.c.disconnect()
         self.disconnect_btn.config(state="disabled")
         self.message.config(text="Disconnected.")
+
+    def _setup(self) -> None:
+        self.message.config(text="Checking the cable and driver…")
+
+        def work() -> None:
+            text = self.c.setup_guidance()
+            self.root.after(
+                0,
+                lambda: (self._show_text("Set up your cable", text), self.message.config(text="")),
+            )
+
+        threading.Thread(target=work, daemon=True).start()
 
     def _clear(self) -> None:
         self.message.config(text=self.c.clear_minitel())

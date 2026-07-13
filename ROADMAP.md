@@ -6,7 +6,7 @@ marketing. Status reflects what is actually in the tree.
 | Ver | Theme | Status |
 |----:|-------|--------|
 | 0.1 | Stable direct bridge (serial ⇄ TCP), Telnet filter | ✅ done |
-| 0.2 | Auto-detect serial, persistent config, service directory, first-run, CLI | ✅ done |
+| 0.2 | Auto-detect serial, persistent config, service directory, CLI | ✅ done |
 | 0.3 | WebSocket transport (Retrocampus/`ws` servers), Local Demo service | ✅ done |
 | 0.4 | Session recording (bidirectional, timestamped) | ✅ done |
 | 0.5 | Mac mirror — text/semigraphics (capability L1) | ✅ done (L1) |

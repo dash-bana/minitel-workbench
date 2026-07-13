@@ -190,6 +190,15 @@ class WorkbenchController:
 
         return load_resources()
 
+    def setup_guidance(self) -> str:
+        """Detect the cable/driver state and return actionable steps. Slow
+        (~1-2s, runs system_profiler), so call it on demand, not every frame."""
+        from ..hardware.setup import DRIVER_MISSING, detect, find_installer, guidance
+
+        st = detect()
+        installer = find_installer() if st.state == DRIVER_MISSING else None
+        return "\n".join(guidance(st, installer))
+
     def telephone_guide(self) -> str:
         """Dialing instructions for services reachable by phone — the primary
         audience's path, needing no cable (Constitution rule II)."""
