@@ -5,6 +5,16 @@ All notable changes to this project are documented here. Format loosely follows
 
 ## [Unreleased]
 
+### Added — protocol inspector + .vdt viewer (0.9/0.11)
+- `videotex/protocol.py`: annotates a Videotex byte stream as human events
+  ("cursor → row 8 col 19", "foreground red", "KEY ENVOI", grouped text runs) —
+  the readable view the notebook wished for during debugging.
+- `minitel view <file>`: render a `.vdt` page or `.mtr` recording to the terminal
+  (colour) or to a self-contained HTML screenshot (`--html`).
+- `minitel inspect <file>`: annotate the bytes of a `.vdt` or one direction of a
+  `.mtr` recording.
+- `recording.stream_from_recording()`: reconstruct either direction's raw bytes.
+
 ### Added — telephone assistant (0.8)
 - `minitel call <service>` — bilingual (EN/FR) dial-a-service instructions for
   the majority of owners who connect by phone. No hardware needed.

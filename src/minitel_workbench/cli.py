@@ -269,6 +269,41 @@ def cmd_status(args: argparse.Namespace) -> int:
     return 0
 
 
+def _load_stream(path: str, direction: str) -> bytes:
+    """Bytes from a raw ``.vdt`` dump, or one direction of a ``.mtr`` recording."""
+    if path.endswith(".mtr"):
+        from .recording import stream_from_recording
+
+        return stream_from_recording(path, direction)
+    with open(path, "rb") as fh:
+        return fh.read()
+
+
+def cmd_view(args: argparse.Namespace) -> int:
+    from .videotex.decoder import Decoder
+
+    data = _load_stream(args.file, "service->terminal")
+    decoder = Decoder()
+    decoder.feed(data)
+    if args.html:
+        with open(args.html, "w", encoding="utf-8") as fh:
+            fh.write(decoder.screen.to_html(title=args.file))
+        print(f"Wrote {args.html}")
+    else:
+        print(decoder.screen.framed(color=sys.stdout.isatty()))
+    return 0
+
+
+def cmd_inspect(args: argparse.Namespace) -> int:
+    from .videotex.protocol import describe_stream, format_events
+
+    data = _load_stream(args.file, args.direction)
+    events = describe_stream(data)
+    print(f"{len(data)} bytes, {len(events)} events:\n")
+    print(format_events(events))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="minitel",
@@ -292,6 +327,21 @@ def build_parser() -> argparse.ArgumentParser:
     p_status = sub.add_parser("status", help="check which services are online")
     p_status.add_argument("--timeout", type=float, default=5.0, help="probe timeout (seconds)")
     p_status.set_defaults(func=cmd_status)
+
+    p_view = sub.add_parser("view", help="render a .vdt page or .mtr recording")
+    p_view.add_argument("file", help="a .vdt Videotex dump or a .mtr recording")
+    p_view.add_argument("--html", metavar="PATH", help="write a colour HTML screenshot instead")
+    p_view.set_defaults(func=cmd_view)
+
+    p_inspect = sub.add_parser("inspect", help="annotate the bytes of a page/recording")
+    p_inspect.add_argument("file", help="a .vdt dump or a .mtr recording")
+    p_inspect.add_argument(
+        "--direction",
+        default="service->terminal",
+        choices=["service->terminal", "terminal->service"],
+        help="for .mtr recordings: which side to inspect",
+    )
+    p_inspect.set_defaults(func=cmd_inspect)
 
     p_connect = sub.add_parser("connect", help="connect a Minitel to a service")
     p_connect.add_argument("service", help="service id or name (e.g. retrocampus, minipavi, demo)")

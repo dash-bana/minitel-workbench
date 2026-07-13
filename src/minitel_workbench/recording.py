@@ -61,3 +61,16 @@ def read_recording(path: str | Path) -> list[dict]:
             if line:
                 events.append(json.loads(line))
     return events
+
+
+def stream_from_recording(path: str | Path, direction: str = "service->terminal") -> bytes:
+    """Reconstruct one direction's raw byte stream from a recording.
+
+    ``direction`` is ``"service->terminal"`` (what was displayed) or
+    ``"terminal->service"`` (what was typed).
+    """
+    out = bytearray()
+    for ev in read_recording(path):
+        if ev.get("type") == "data" and ev.get("dir") == direction:
+            out.extend(bytes.fromhex(ev["hex"]))
+    return bytes(out)
