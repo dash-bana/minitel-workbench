@@ -55,6 +55,13 @@ def test_resources_available():
     assert len(c.resources()) >= 6
 
 
+def test_telephone_guide_serves_phone_users():
+    c = WorkbenchController()
+    guide = c.telephone_guide()
+    assert "Connexion/Fin" in guide  # real dialing instructions, no cable needed
+    assert any(ch.isdigit() for ch in guide)  # includes phone numbers
+
+
 def test_unknown_service_sets_error():
     c = WorkbenchController()
     assert c.connect("nope") is False

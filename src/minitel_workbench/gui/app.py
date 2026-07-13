@@ -57,6 +57,7 @@ class WorkbenchApp:
         )
         self.disconnect_btn.pack(side="left", padx=3)
         ttk.Button(tools, text="Clear screen", command=self._clear).pack(side="left", padx=3)
+        ttk.Button(tools, text="Telephone", command=self._telephone).pack(side="left", padx=3)
         ttk.Button(tools, text="Link info", command=self._link_info).pack(side="left", padx=3)
         ttk.Button(tools, text="What's online", command=self._status_check).pack(
             side="left", padx=3
@@ -102,6 +103,9 @@ class WorkbenchApp:
 
     def _clear(self) -> None:
         self.message.config(text=self.c.clear_minitel())
+
+    def _telephone(self) -> None:
+        self._show_text("How to dial (no cable needed)", self.c.telephone_guide())
 
     def _link_info(self) -> None:
         self._show_text("Link info", self.c.link_info())

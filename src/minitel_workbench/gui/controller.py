@@ -190,6 +190,16 @@ class WorkbenchController:
 
         return load_resources()
 
+    def telephone_guide(self) -> str:
+        """Dialing instructions for services reachable by phone — the primary
+        audience's path, needing no cable (Constitution rule II)."""
+        from ..telephone import dialing_instructions
+
+        parts = [
+            dialing_instructions(svc) for svc in self.directory.all() if svc.telephone_numbers()
+        ]
+        return "\n".join(parts) if parts else "No telephone numbers listed yet."
+
     # dimensions, so the view doesn't import the model directly
     rows = ROWS
     cols = COLS
