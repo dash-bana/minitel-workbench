@@ -2,9 +2,18 @@ from minitel_workbench.benchmark import (
     SAFE_FRAMING,
     SAFE_SPEED,
     make_test_payload,
+    make_throughput_payload,
     measure_write_throughput,
     run_sweep,
 )
+
+
+def test_throughput_payload_size_and_content():
+    p = make_throughput_payload(2000)
+    assert len(p) == 2001  # FF + 2000 bytes
+    assert p[0] == 0x0C
+    # Must be printable only (no control bytes that would skew a raw byte count).
+    assert all(0x20 <= b <= 0x7E for b in p[1:])
 
 
 class FakeLink:

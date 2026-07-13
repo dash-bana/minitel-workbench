@@ -278,7 +278,7 @@ def cmd_benchmark(args: argparse.Namespace) -> int:
         EXPERIMENTAL_SPEEDS,
         STANDARD_SPEEDS,
         SpeedVerdict,
-        make_test_payload,
+        make_throughput_payload,
         measure_write_throughput,
         run_sweep,
     )
@@ -299,20 +299,21 @@ def cmd_benchmark(args: argparse.Namespace) -> int:
     interactive = sys.stdout.isatty() and sys.stdin.isatty()
 
     if not args.all:
-        # Quick baseline: throughput at the known-good 1200 7E1.
-        print("Measuring throughput at 1200 7E1 (a test page will appear on the Minitel)…")
+        # Baseline throughput at 1200 7E1. The payload must be large enough to
+        # overflow the adapter's buffers, so this deliberately takes a while.
+        payload = make_throughput_payload(args.bytes)
+        est = args.bytes / 120  # ~120 cps at 1200 7E1
+        print(f"Measuring throughput at 1200 7E1 by sending {args.bytes} bytes")
+        print(f"(a stream of text will fill the Minitel; ~{est:.0f}s — please wait)…")
         link = open_at(1200, "7E1")
         try:
-            result = measure_write_throughput(
-                link, make_test_payload("1200 7E1"), baud=1200, framing="7E1"
-            )
+            result = measure_write_throughput(link, payload, baud=1200, framing="7E1")
         finally:
             link.close()
-        print(
-            f"\n  {result.chars_per_sec:6.1f} chars/sec   "
-            f"(~{result.est_page_seconds():.1f}s for a 1000-char page)"
-        )
-        print("\nRun the full sweep with:  minitel benchmark --all")
+        print(f"\n  {result.chars_per_sec:6.1f} chars/sec over {result.seconds:.1f}s")
+        print(f"  effective bit rate ≈ {result.chars_per_sec * 10:.0f} baud (10 bits/char, 7E1)")
+        print(f"  a full 1000-char page takes ≈ {result.est_page_seconds():.1f}s")
+        print("\nRun the full multi-speed sweep with:  minitel benchmark --all")
         return 0
 
     speeds = STANDARD_SPEEDS + (EXPERIMENTAL_SPEEDS if args.experimental else ())
@@ -601,6 +602,12 @@ def build_parser() -> argparse.ArgumentParser:
     p_bench.add_argument("--all", action="store_true", help="sweep all standard speeds")
     p_bench.add_argument(
         "--experimental", action="store_true", help="also try experimental speeds (19200+)"
+    )
+    p_bench.add_argument(
+        "--bytes",
+        type=int,
+        default=2000,
+        help="payload size for the baseline throughput test (default 2000)",
     )
     p_bench.set_defaults(func=cmd_benchmark)
 

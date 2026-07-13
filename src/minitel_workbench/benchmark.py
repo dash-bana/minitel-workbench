@@ -52,6 +52,20 @@ class SpeedVerdict:
     rendering: str  # "clean" | "garbled" | "nothing" | "skipped"
 
 
+def make_throughput_payload(nbytes: int = 2000) -> bytes:
+    """A large block of printable text for timing.
+
+    Throughput can only be measured honestly if the payload is much bigger than
+    the USB adapter's buffers (an FT232R has a 256-byte TX FIFO, plus OS
+    buffering). A small page fits entirely in that buffer, so ``write`` returns
+    before a single bit hits the wire — which reports absurd speeds. A few KB
+    forces ``write`` to block at the real line rate.
+    """
+    row = b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ" * 4  # printable, no control bytes
+    body = (row * (nbytes // len(row) + 1))[:nbytes]
+    return bytes([C.FF]) + body
+
+
 def make_test_payload(label: str) -> bytes:
     """A visible, self-identifying Videotex test page for a given speed."""
     out = bytearray()
