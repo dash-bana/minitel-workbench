@@ -33,6 +33,8 @@ class CapabilityProfile:
     data_bits: int = 7
     parity: str = "even"  # "even" | "odd" | "none"
     stop_bits: int = 1
+    #: Highest speed empirically verified clean against real hardware, if known.
+    verified_max_speed: int | None = None
     notes: str = ""
 
     @property
@@ -47,10 +49,13 @@ _PROFILES: dict[str, CapabilityProfile] = {
     "nfz300": CapabilityProfile(
         model="La Radiotechnique Minitel 9 (NFZ 300)",
         display_level=CapabilityLevel.L1_MONOCHROME,
-        din_speeds=(300, 1200),
+        din_speeds=(1200,),
         default_speed=1200,
+        verified_max_speed=1200,
         notes="First-generation Minitel 1, reversible modem (1984). "
-        "Documented peripheral ceiling is 1200 baud, 7E1.",
+        "Peripheral DIN port VERIFIED against hardware (benchmark sweep): "
+        "1200 7E1 renders clean; 300 produces no output; 4800 and 9600 garble. "
+        "Maximum verified clean speed 1200 baud.",
     ),
     "generic": CapabilityProfile(
         model="Minitel (unrecognised model)",
