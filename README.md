@@ -89,12 +89,15 @@ mirror** (ANSI + HTML), a **telephone dialing assistant** and **service status
 monitor**, a **protocol inspector** and **`.vdt`/recording viewer**, and a curated
 **resources/museum** directory with credits.
 
-CLI surface: `list · scan · doctor · demo · status · resources · call · view ·
-inspect · connect`.
+Also: a **benchmark** for the serial link, an **AI page generator** (Mistral-first,
+with an offline fallback), a **local microserver** that serves your own pages to
+the terminal, and a Videotex **page builder**.
 
-Planned: DRCS + serial-attribute rendering, a `.vdt` editor with AI page
-generation, a live GUI monitor and local microserver, and the all-speeds
-benchmark.
+CLI surface: `list · scan · doctor · demo · status · resources · call · view ·
+inspect · ai · serve · benchmark · connect`.
+
+Planned: DRCS + serial-attribute rendering, a visual `.vdt` editor, a richer live
+GUI monitor, and a packaged `.app`.
 
 ## Contributing
 

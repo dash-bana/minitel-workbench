@@ -349,6 +349,71 @@ def cmd_benchmark(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_ai(args: argparse.Namespace) -> int:
+    from .ai import (
+        MistralProvider,
+        OfflineProvider,
+        OpenAIProvider,
+        default_provider,
+        generate_page_spec,
+    )
+    from .videotex.decoder import Decoder
+    from .videotex.page import build_page
+
+    provider = None
+    if args.provider == "mistral":
+        key = _require_key("MISTRAL_API_KEY", "Mistral")
+        if key is None:
+            return 1
+        provider = MistralProvider(key)
+    elif args.provider == "chatgpt":
+        key = _require_key("OPENAI_API_KEY", "ChatGPT")
+        if key is None:
+            return 1
+        provider = OpenAIProvider(key)
+    elif args.provider == "offline":
+        provider = OfflineProvider()
+    else:
+        provider = default_provider()
+
+    print(f"Generating with {provider.name} …")
+    try:
+        spec = generate_page_spec(args.prompt, provider)
+    except (RuntimeError, ValueError) as exc:
+        print(str(exc))
+        return 1
+
+    page = build_page(spec)
+
+    if args.save:
+        with open(args.save, "wb") as fh:
+            fh.write(page)
+        print(f"Saved {args.save}")
+    if args.html:
+        d = Decoder()
+        d.feed(page)
+        with open(args.html, "w", encoding="utf-8") as fh:
+            fh.write(d.screen.to_html(title=spec.get("title", "page")))
+        print(f"Wrote {args.html}")
+    if not args.save and not args.html:
+        d = Decoder()
+        d.feed(page)
+        print()
+        print(d.screen.framed(color=sys.stdout.isatty()))
+    if provider.name == "offline":
+        print("\n(Set MISTRAL_API_KEY to generate real pages with Mistral.)")
+    return 0
+
+
+def _require_key(env: str, name: str) -> str | None:
+    import os
+
+    key = os.environ.get(env)
+    if not key:
+        print(f"{name} needs an API key. Set it first:\n    export {env}=...")
+    return key
+
+
 def cmd_serve(args: argparse.Namespace) -> int:
     from .bridge import Bridge
     from .transport.menu_server import MenuServerTransport, load_pages_from_dir
@@ -517,6 +582,15 @@ def build_parser() -> argparse.ArgumentParser:
     p_status.add_argument("--timeout", type=float, default=5.0, help="probe timeout (seconds)")
     p_status.set_defaults(func=cmd_status)
 
+    p_ai = sub.add_parser("ai", help="generate a Videotex page from a prompt")
+    p_ai.add_argument("prompt", help='e.g. "a weather page for Paris in cyan"')
+    p_ai.add_argument(
+        "--provider", choices=["auto", "mistral", "chatgpt", "offline"], default="auto"
+    )
+    p_ai.add_argument("--save", metavar="PATH.vdt", help="save the page as .vdt")
+    p_ai.add_argument("--html", metavar="PATH", help="save a colour HTML screenshot")
+    p_ai.set_defaults(func=cmd_ai)
+
     p_serve = sub.add_parser("serve", help="serve local .vdt pages to your Minitel")
     p_serve.add_argument("directory", help="folder of .vdt pages to serve")
     p_serve.add_argument("--title", default="MINITEL WORKBENCH", help="menu title")
@@ -578,7 +652,10 @@ def main(argv: list[str] | None = None) -> int:
         print("  minitel status    see which services are online")
         print("  minitel resources museums, history, community links")
         print("  minitel call <service>     reach it by telephone")
-        print("  minitel connect <service>  connect a cabled Minitel\n")
+        print("  minitel connect <service>  connect a cabled Minitel")
+        print('  minitel ai "..."           generate a Videotex page')
+        print("  minitel serve <dir>        serve your own pages to a Minitel")
+        print("  minitel benchmark          measure the serial link\n")
         return 0
     return args.func(args)
 

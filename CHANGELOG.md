@@ -5,6 +5,14 @@ All notable changes to this project are documented here. Format loosely follows
 
 ## [Unreleased]
 
+### Added — AI page generation (0.9) + polish
+- `minitel ai "<prompt>"` generates a Videotex page: the model returns a JSON
+  page spec, `build_page` encodes it (so output is always valid). Provider order
+  is Mistral → ChatGPT → offline template (Constitution: Mistral first). Uses only
+  the standard library. `--save`, `--html`, `--provider`.
+- `scripts/build_app.sh` (experimental py2app bundle) and a Studio how-to guide.
+
+
 ### Added — page builder + local microserver (0.9/0.11)
 - `videotex/page.py`: build valid Videotex from a simple spec (title, coloured
   lines, footer) — a dict-friendly surface so content can be described without

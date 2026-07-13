@@ -7,6 +7,7 @@ nav:
   - Getting started: guides/getting-started.md
   - Keyboard guide: guides/keyboard.md
   - Services: guides/services.md
+  - Studio (AI, serve): guides/studio.md
   - Constitution: ../CONSTITUTION.md
   - Architecture: ../ARCHITECTURE.md
   - Roadmap: ../ROADMAP.md
