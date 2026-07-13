@@ -349,6 +349,57 @@ def cmd_benchmark(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_serve(args: argparse.Namespace) -> int:
+    from .bridge import Bridge
+    from .transport.menu_server import MenuServerTransport, load_pages_from_dir
+
+    pages = load_pages_from_dir(args.directory)
+    if not pages:
+        print(f"No .vdt pages found in {args.directory!r}.")
+        print("Create some with the AI generator (minitel ai ... --save) or by hand.")
+        return 1
+
+    server = MenuServerTransport(pages, title=args.title)
+
+    if args.preview:
+        # Render the menu locally with no hardware, for a quick look.
+        from .hardware.link import LoopbackLink
+        from .videotex.decoder import Decoder
+
+        link = LoopbackLink()
+        decoder = Decoder()
+        bridge = Bridge(link, server, monitor=decoder)
+        for _ in range(12):
+            bridge.pump(timeout=0.05)
+        print(f"Menu preview ({len(pages)} page(s)):\n")
+        print(decoder.screen.framed(color=sys.stdout.isatty()))
+        bridge.close()
+        return 0
+
+    from .hardware.capability import profile_for_model
+    from .hardware.detect import best_adapter
+    from .hardware.link import SerialLink
+
+    adapter = best_adapter()
+    if adapter is None:
+        print("No Minitel connection found. To preview the menu with no hardware:")
+        print(f"    minitel serve {args.directory} --preview")
+        server.close()
+        return 1
+
+    link = SerialLink.open(adapter.device, profile_for_model(None))
+    bridge = Bridge(link, server)
+    print(f"Serving {len(pages)} page(s) to your Minitel. Leave it at F. Ctrl-C to stop.\n")
+    try:
+        bridge.run()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        bridge.close()
+    print("Stopped.")
+    return 0
+
+
 def cmd_call(args: argparse.Namespace) -> int:
     svc = _resolve_service(args.service)
     if svc is None:
@@ -465,6 +516,12 @@ def build_parser() -> argparse.ArgumentParser:
     p_status = sub.add_parser("status", help="check which services are online")
     p_status.add_argument("--timeout", type=float, default=5.0, help="probe timeout (seconds)")
     p_status.set_defaults(func=cmd_status)
+
+    p_serve = sub.add_parser("serve", help="serve local .vdt pages to your Minitel")
+    p_serve.add_argument("directory", help="folder of .vdt pages to serve")
+    p_serve.add_argument("--title", default="MINITEL WORKBENCH", help="menu title")
+    p_serve.add_argument("--preview", action="store_true", help="show the menu with no hardware")
+    p_serve.set_defaults(func=cmd_serve)
 
     p_bench = sub.add_parser("benchmark", help="measure your Minitel's serial link")
     p_bench.add_argument("--all", action="store_true", help="sweep all standard speeds")

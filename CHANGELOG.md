@@ -5,6 +5,17 @@ All notable changes to this project are documented here. Format loosely follows
 
 ## [Unreleased]
 
+### Added — page builder + local microserver (0.9/0.11)
+- `videotex/page.py`: build valid Videotex from a simple spec (title, coloured
+  lines, footer) — a dict-friendly surface so content can be described without
+  touching control bytes.
+- `MenuServerTransport`: a generic in-process Videotex menu server. Give it named
+  pages and the Mac becomes a service your Minitel browses (menu → ENVOI → page →
+  SOMMAIRE).
+- `minitel serve DIR`: serve a folder of `.vdt` pages to the Minitel, or preview
+  the menu with no hardware via `--preview`.
+
+
 ### Added — benchmark suite (0.12)
 - `minitel benchmark` measures write throughput at 1200 7E1 (chars/sec, est. page
   time); `--all` sweeps 300/1200/4800/9600 (add `--experimental` for 19200) with
