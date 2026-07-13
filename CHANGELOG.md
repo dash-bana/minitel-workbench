@@ -5,6 +5,15 @@ All notable changes to this project are documented here. Format loosely follows
 
 ## [Unreleased]
 
+### Changed — GUI mirror now draws in colour (mosaics as sub-blocks)
+- The window's mirror is a Canvas that *draws* the Minitel instead of printing
+  glyphs: colour foreground/background, and semigraphic mosaics painted as real
+  2x3 sub-blocks — so services like Retrocampus render properly instead of as
+  boxed "?" (fonts lack the Videotex sextant glyphs). Screen now preserves the
+  6-bit mosaic pattern per cell; a Tk-free `monitor/canvas_render.py` produces the
+  draw ops (headless-tested). Disconnect moved into the toolbar.
+
+
 ### Added — the GUI front-end (window)
 - A real Minitel Workbench window: destination buttons (MiniPavi / Retrocampus /
   Local Demo), a live mirror of the terminal screen, a status line, and a toolbar

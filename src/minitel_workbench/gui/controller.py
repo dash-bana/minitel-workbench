@@ -122,6 +122,10 @@ class WorkbenchController:
     def screen_text(self) -> str:
         return self.decoder.screen.text
 
+    def screen(self):
+        """The live Screen model, for a graphical renderer."""
+        return self.decoder.screen
+
     # -- actions -----------------------------------------------------------
     def clear_minitel(self) -> str:
         seq = bytes(

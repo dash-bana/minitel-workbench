@@ -80,6 +80,7 @@ class Decoder:
         self._graphic = False  # False = G0 text, True = G1 semigraphics
         self._pending_combining: str | None = None
         self._last_glyph = " "  # for REP (run-length repeat)
+        self._last_mosaic: int | None = None
 
     def feed(self, data: bytes) -> None:
         """Consume bytes, applying every complete token to the screen."""
@@ -107,7 +108,7 @@ class Decoder:
                     break
                 count = buf[i + 1] & 0x3F
                 for _ in range(count):
-                    self.screen.put(self._last_glyph)
+                    self.screen.put(self._last_glyph, mosaic=self._last_mosaic)
                 i += 2
                 continue
 
@@ -193,14 +194,19 @@ class Decoder:
             # --- printable ------------------------------------------------
             if 0x20 <= b <= 0x7F:
                 if self._graphic:
+                    pattern = (b & 0x1F) | ((b & 0x40) >> 1)
                     ch = _mosaic_glyph(b)
+                    self.screen.put(ch, mosaic=pattern)
+                    self._last_glyph = ch
+                    self._last_mosaic = pattern
                 else:
                     ch = chr(b)
                     if self._pending_combining:
                         ch = unicodedata.normalize("NFC", ch + self._pending_combining)
                         self._pending_combining = None
-                self.screen.put(ch)
-                self._last_glyph = ch
+                    self.screen.put(ch)
+                    self._last_glyph = ch
+                    self._last_mosaic = None
                 i += 1
                 continue
 

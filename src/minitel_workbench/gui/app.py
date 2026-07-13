@@ -1,9 +1,10 @@
 """The Minitel Workbench window.
 
-A thin Tk view over ``WorkbenchController`` — destination buttons, a live mirror
-of the terminal, and a small toolbar (clear, link info, what's online,
-resources). All logic lives in the controller; this file only builds widgets and
-forwards clicks, so the untested surface is as small as possible.
+A thin Tk view over ``WorkbenchController`` — destination buttons, a live,
+*drawn* colour mirror of the terminal (mosaics are painted as 2x3 sub-blocks, so
+no font glyphs are needed), and a small toolbar. All logic lives in the
+controller; this file only builds widgets, forwards clicks, and paints the canvas
+from the controller's screen, so the untested surface is as small as possible.
 
 Only imported when Tk is present (see ``gui/__init__.py``).
 """
@@ -15,11 +16,11 @@ import tkinter as tk
 import webbrowser
 from tkinter import ttk
 
+from ..monitor.canvas_render import cell_draw_ops
 from .controller import WorkbenchController
 
-_BG = "#101014"
-_FG = "#d6d6e6"
-_ACCENT = "#8fb7ff"
+_CELL_W = 15
+_CELL_H = 22
 
 
 class WorkbenchApp:
@@ -27,9 +28,8 @@ class WorkbenchApp:
         self.c = WorkbenchController()
         self.root = tk.Tk()
         self.root.title("Minitel Workbench")
-        self.root.geometry("620x640")
-        self.root.minsize(560, 560)
         self._busy = False
+        self._last_ops: list[tuple] | None = None
         self._build()
         self._poll()
 
@@ -38,7 +38,7 @@ class WorkbenchApp:
         ttk.Label(self.root, text="Minitel Workbench", font=("Helvetica", 18, "bold")).pack(
             pady=(14, 2)
         )
-        self.status = ttk.Label(self.root, text=self.c.status_line(), foreground="#4a4a55")
+        self.status = ttk.Label(self.root, text=self.c.status_line(), foreground="#9aa4c0")
         self.status.pack()
 
         dest = ttk.LabelFrame(self.root, text="Connect to")
@@ -47,15 +47,15 @@ class WorkbenchApp:
         row.pack(fill="x", padx=8, pady=8)
         for svc in self.c.featured():
             ttk.Button(
-                row, text=svc.name, width=16, command=lambda s=svc.id: self._connect(s)
-            ).pack(side="left", padx=4)
-        self.disconnect_btn = ttk.Button(
-            row, text="Disconnect", command=self._disconnect, state="disabled"
-        )
-        self.disconnect_btn.pack(side="right", padx=4)
+                row, text=svc.name, width=15, command=lambda s=svc.id: self._connect(s)
+            ).pack(side="left", padx=4, expand=True, fill="x")
 
         tools = ttk.Frame(self.root)
         tools.pack(fill="x", padx=16, pady=(0, 8))
+        self.disconnect_btn = ttk.Button(
+            tools, text="Disconnect", command=self._disconnect, state="disabled"
+        )
+        self.disconnect_btn.pack(side="left", padx=3)
         ttk.Button(tools, text="Clear screen", command=self._clear).pack(side="left", padx=3)
         ttk.Button(tools, text="Link info", command=self._link_info).pack(side="left", padx=3)
         ttk.Button(tools, text="What's online", command=self._status_check).pack(
@@ -64,20 +64,15 @@ class WorkbenchApp:
         ttk.Button(tools, text="Resources", command=self._resources).pack(side="left", padx=3)
 
         ttk.Label(self.root, text="Minitel screen (live)").pack(anchor="w", padx=16)
-        self.mirror = tk.Text(
+        self.canvas = tk.Canvas(
             self.root,
-            height=self.c.rows,
-            width=self.c.cols,
-            font=("Menlo", 12),
-            background=_BG,
-            foreground=_FG,
-            borderwidth=0,
+            width=self.c.cols * _CELL_W,
+            height=self.c.rows * _CELL_H,
+            background="#000000",
             highlightthickness=1,
             highlightbackground="#2a2a33",
-            state="disabled",
-            wrap="none",
         )
-        self.mirror.pack(padx=16, pady=(2, 6), fill="both", expand=True)
+        self.canvas.pack(padx=16, pady=(2, 6))
 
         self.message = ttk.Label(self.root, text="Leave the Minitel on and showing F.")
         self.message.pack(anchor="w", padx=16, pady=(0, 12))
@@ -90,12 +85,12 @@ class WorkbenchApp:
         self.message.config(text=f"Connecting to {service_id}…")
 
         def work() -> None:
-            ok = self.c.connect(service_id)
-            self.root.after(0, lambda: self._after_connect(ok))
+            self.c.connect(service_id)
+            self.root.after(0, self._after_connect)
 
         threading.Thread(target=work, daemon=True).start()
 
-    def _after_connect(self, ok: bool) -> None:
+    def _after_connect(self) -> None:
         self._busy = False
         self.message.config(text=self.c.message)
         self.disconnect_btn.config(state="normal" if self.c.is_connected() else "disabled")
@@ -131,7 +126,7 @@ class WorkbenchApp:
             win, text="Explore Minitel history & community", font=("Helvetica", 14, "bold")
         ).pack(pady=8)
         for res in self.c.resources():
-            ttk.Button(win, text=f"{res.title}", command=lambda u=res.url: webbrowser.open(u)).pack(
+            ttk.Button(win, text=res.title, command=lambda u=res.url: webbrowser.open(u)).pack(
                 fill="x", padx=12, pady=2
             )
 
@@ -145,15 +140,27 @@ class WorkbenchApp:
         box.pack(fill="both", expand=True, padx=10, pady=10)
 
     # -- live update -------------------------------------------------------
+    def _render(self) -> None:
+        ops = cell_draw_ops(self.c.screen(), _CELL_W, _CELL_H)
+        if ops == self._last_ops:
+            return  # nothing changed — avoid needless redraw/flicker
+        self._last_ops = ops
+        cv = self.canvas
+        cv.delete("all")
+        for op in ops:
+            if op[0] == "rect":
+                _, x0, y0, x1, y1, fill = op
+                cv.create_rectangle(x0, y0, x1, y1, fill=fill, outline=fill)
+            else:  # text
+                _, cx, cy, ch, fill = op
+                cv.create_text(cx, cy, text=ch, fill=fill, font=("Menlo", 13))
+
     def _poll(self) -> None:
         self.status.config(text=self.c.status_line())
-        lines = self.c.screen_lines()
-        self.mirror.config(state="normal")
-        self.mirror.delete("1.0", "end")
-        self.mirror.insert("1.0", "\n".join(lines))
-        self.mirror.config(state="disabled")
-        if self.c.is_connected() != (self.disconnect_btn["state"] == "normal"):
-            self.disconnect_btn.config(state="normal" if self.c.is_connected() else "disabled")
+        self._render()
+        want = "normal" if self.c.is_connected() else "disabled"
+        if str(self.disconnect_btn["state"]) != want:
+            self.disconnect_btn.config(state=want)
         self.root.after(300, self._poll)
 
     def run(self) -> None:

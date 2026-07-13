@@ -55,6 +55,10 @@ class Screen:
         self.pen = DEFAULT_ATTR  # current rendition applied to written glyphs
         self._cells: list[list[str]] = [[" "] * cols for _ in range(rows)]
         self._attrs: list[list[Attr]] = [[DEFAULT_ATTR] * cols for _ in range(rows)]
+        # Per-cell 6-bit mosaic pattern (or None for text cells). Kept so a
+        # graphical renderer can *draw* the 2x3 sub-blocks instead of relying on
+        # a font having the Unicode sextant glyphs (most don't).
+        self._mosaic: list[list[int | None]] = [[None] * cols for _ in range(rows)]
 
     # -- cursor -------------------------------------------------------------
     def home(self) -> None:
@@ -97,6 +101,7 @@ class Screen:
             for c in range(self.cols):
                 self._cells[r][c] = " "
                 self._attrs[r][c] = DEFAULT_ATTR
+                self._mosaic[r][c] = None
         self.reset_pen()
         self.home()
 
@@ -104,11 +109,17 @@ class Screen:
         for c in range(self.col, self.cols):
             self._cells[self.row][c] = " "
             self._attrs[self.row][c] = self.pen
+            self._mosaic[self.row][c] = None
 
-    def put(self, ch: str) -> None:
-        """Write one glyph with the current pen and advance (wrap/scroll)."""
+    def put(self, ch: str, mosaic: int | None = None) -> None:
+        """Write one glyph with the current pen and advance (wrap/scroll).
+
+        ``mosaic`` is the 6-bit semigraphic pattern when the glyph is a mosaic
+        cell, or ``None`` for ordinary text.
+        """
         self._cells[self.row][self.col] = ch
         self._attrs[self.row][self.col] = self.pen
+        self._mosaic[self.row][self.col] = mosaic
         if self.col < self.cols - 1:
             self.col += 1
         else:
@@ -120,6 +131,12 @@ class Screen:
         self._cells.append([" "] * self.cols)
         self._attrs.pop(0)
         self._attrs.append([DEFAULT_ATTR] * self.cols)
+        self._mosaic.pop(0)
+        self._mosaic.append([None] * self.cols)
+
+    def mosaic_pattern(self, row: int, col: int) -> int | None:
+        """The 6-bit semigraphic pattern at a cell, or None if it's text."""
+        return self._mosaic[row][col]
 
     # -- access -------------------------------------------------------------
     def glyph(self, row: int, col: int) -> str:
@@ -204,6 +221,11 @@ _WEB_COLOURS = (
 )
 
 assert len(_WEB_COLOURS) == len(COLOURS)
+
+
+def web_colour(index: int) -> str:
+    """Hex colour for a Minitel colour index (0..7)."""
+    return _WEB_COLOURS[index & 0x07]
 
 
 def _ansi_sgr(a: Attr) -> str:
