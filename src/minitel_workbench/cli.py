@@ -481,6 +481,27 @@ def cmd_serve(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_clear(args: argparse.Namespace) -> int:
+    import time
+
+    from .hardware.capability import profile_for_model
+    from .hardware.detect import best_adapter
+    from .hardware.link import SerialLink
+    from .videotex import constants as C
+
+    adapter = best_adapter()
+    if adapter is None:
+        print("No Minitel connection found.")
+        return 1
+    link = SerialLink.open(adapter.device, profile_for_model(None))
+    # Normal size, text set (G0), then clear + home — undoes a garbled state.
+    link.write(bytes([C.ESC, 0x4C, C.SI, C.FF]))
+    time.sleep(0.3)
+    link.close()
+    print("Cleared the Minitel screen.")
+    return 0
+
+
 def cmd_call(args: argparse.Namespace) -> int:
     svc = _resolve_service(args.service)
     if svc is None:
@@ -598,6 +619,7 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("scan", help="look for a Minitel connection").set_defaults(func=cmd_scan)
     sub.add_parser("doctor", help="check your setup").set_defaults(func=cmd_doctor)
     sub.add_parser("demo", help="try the whole stack offline").set_defaults(func=cmd_demo)
+    sub.add_parser("clear", help="clear a garbled Minitel screen").set_defaults(func=cmd_clear)
 
     p_call = sub.add_parser("call", help="how to reach a service by telephone")
     p_call.add_argument("service", help="service id or name")

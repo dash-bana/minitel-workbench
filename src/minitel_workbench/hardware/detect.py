@@ -80,7 +80,13 @@ def _from_glob() -> list[DetectedAdapter]:
 
 
 def find_minitel_adapters() -> list[DetectedAdapter]:
-    """Return candidate adapters, most-likely-Minitel first.
+    """Return candidate adapters, most-likely-Minitel first, de-duplicated.
+
+    macOS can expose one physical FTDI adapter under two device nodes — a
+    location name (``usbserial-4``) and a serial name (``usbserial-A5XK3RJT``) —
+    with the same USB serial number. We collapse those to one entry, preferring
+    the stable serial-named node, so the user isn't shown (or auto-connected to)
+    the same Minitel twice.
 
     Never raises and never requires ``pyserial``; an empty list simply means
     "no cable found," which is a perfectly normal (majority) state.
@@ -88,8 +94,24 @@ def find_minitel_adapters() -> list[DetectedAdapter]:
     adapters = _from_pyserial()
     if adapters is None:
         adapters = _from_glob()
-    adapters.sort(key=lambda a: (not a.likely_minitel, a.device))
-    return adapters
+
+    def stable_name(a: DetectedAdapter) -> bool:
+        sn = a.advanced.get("serial_number")
+        return bool(sn and sn in a.device)
+
+    # Prefer likely-Minitel, then the stable (serial-named) node, then name.
+    adapters.sort(key=lambda a: (not a.likely_minitel, not stable_name(a), a.device))
+
+    deduped: list[DetectedAdapter] = []
+    seen_serials: set[str] = set()
+    for a in adapters:
+        sn = a.advanced.get("serial_number")
+        if sn:
+            if sn in seen_serials:
+                continue
+            seen_serials.add(sn)
+        deduped.append(a)
+    return deduped
 
 
 def best_adapter() -> DetectedAdapter | None:
