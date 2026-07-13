@@ -5,6 +5,13 @@ All notable changes to this project are documented here. Format loosely follows
 
 ## [Unreleased]
 
+### Added — telephone assistant (0.8)
+- `minitel call <service>` — bilingual (EN/FR) dial-a-service instructions for
+  the majority of owners who connect by phone. No hardware needed.
+- `minitel status` — concurrent, dependency-free reachability check of directory
+  services (TCP/Telnet/WebSocket host:port probe; demo always online; telephone
+  reported as unknown). Makes outbound connections only when run.
+
 ### Added — CEPT level-2 renderer (0.7)
 - Per-cell attribute grid on the `Screen` (colour, blink, inverse, underline,
   conceal, double-width/height, mosaic) — strictly additive, so monochrome

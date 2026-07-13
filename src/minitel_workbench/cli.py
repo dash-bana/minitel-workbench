@@ -245,6 +245,30 @@ def cmd_connect(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_call(args: argparse.Namespace) -> int:
+    svc = _resolve_service(args.service)
+    if svc is None:
+        print(f"Unknown service: {args.service!r}. See 'minitel list'.")
+        return 2
+    from .telephone import dialing_instructions
+
+    print(dialing_instructions(svc))
+    return 0
+
+
+def cmd_status(args: argparse.Namespace) -> int:
+    from .status import OFFLINE, ONLINE, check_all
+
+    directory = load_directory()
+    print("Checking services … (this makes outbound connections)\n")
+    marks = {ONLINE: "●", OFFLINE: "○"}
+    for st in check_all(directory, timeout=args.timeout):
+        mark = marks.get(st.state, "◌")
+        print(f"  {mark} {st.name:<14} {st.state:<8} {st.detail}")
+    print("\n  ● online   ○ offline   ◌ unknown (e.g. telephone-only)")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="minitel",
@@ -260,6 +284,14 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("scan", help="look for a Minitel connection").set_defaults(func=cmd_scan)
     sub.add_parser("doctor", help="check your setup").set_defaults(func=cmd_doctor)
     sub.add_parser("demo", help="try the whole stack offline").set_defaults(func=cmd_demo)
+
+    p_call = sub.add_parser("call", help="how to reach a service by telephone")
+    p_call.add_argument("service", help="service id or name")
+    p_call.set_defaults(func=cmd_call)
+
+    p_status = sub.add_parser("status", help="check which services are online")
+    p_status.add_argument("--timeout", type=float, default=5.0, help="probe timeout (seconds)")
+    p_status.set_defaults(func=cmd_status)
 
     p_connect = sub.add_parser("connect", help="connect a Minitel to a service")
     p_connect.add_argument("service", help="service id or name (e.g. retrocampus, minipavi, demo)")
@@ -277,8 +309,9 @@ def main(argv: list[str] | None = None) -> int:
         print("Minitel Workbench — everything a Minitel owner needs, in one place.\n")
         print("  minitel list      what you can connect to")
         print("  minitel demo      try it now, no hardware needed")
-        print("  minitel doctor    check your setup")
-        print("  minitel connect <service>\n")
+        print("  minitel status    see which services are online")
+        print("  minitel call <service>     reach it by telephone")
+        print("  minitel connect <service>  connect a cabled Minitel\n")
         return 0
     return args.func(args)
 

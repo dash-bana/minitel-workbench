@@ -12,7 +12,7 @@ marketing. Status reflects what is actually in the tree.
 | 0.5 | Mac mirror — text/semigraphics (capability L1) | ✅ done (L1) |
 | 0.6 | Tkinter GUI shell + first-run wizard | ✅ done (skeleton) |
 | 0.7 | **CEPT renderer** — colour/blink/inverse/underline/conceal/size + ANSI & HTML output (L2) | ✅ done (L2); DRCS + serial-attribute semantics pending |
-| 0.8 | Telephone assistant (dial guide, service status monitor) | ⏳ planned |
+| 0.8 | Telephone assistant (bilingual dial guide, service status monitor) | ✅ done |
 | 0.9 | Studio — `.vdt` viewer/editor, PNG capture, AI page generation | ⏳ planned |
 | 0.10 | Museum & Resources (curated external links, model docs) | ⏳ planned |
 | 0.11 | Developer — protocol analyzer/monitor, packet capture, local microserver | ⏳ planned |
