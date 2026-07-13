@@ -124,6 +124,19 @@ class Decoder:
                         break
                     i += 2 + param_len
                     continue
+                if 0x28 <= code <= 0x2B:
+                    # Charset designation: ESC ( / ) / * / + <F> (optionally with
+                    # an intermediate 0x20). Ignore, but don't print the params.
+                    if i + 2 >= n:
+                        break
+                    extra = 2 if (buf[i + 2] & 0x7F) == 0x20 else 1
+                    if i + 1 + extra >= n:
+                        break
+                    i += 2 + extra
+                    continue
+                # Attributes here are NON-spacing (they don't consume a cell).
+                # Making them spacing was tried and broke known-good pages
+                # (Retrocampus), so it's deliberately not done.
                 self._apply_attribute(code)
                 i += 2
                 continue
@@ -216,14 +229,13 @@ class Decoder:
         # Keep the unconsumed tail (an incomplete multi-byte sequence).
         del self._buf[:i]
 
-    def _apply_attribute(self, code: int) -> None:
-        """Interpret a Teletel attribute (the byte after ESC) onto the pen.
+    def _apply_attribute(self, code: int) -> bool:
+        """Interpret a Teletel display attribute (the byte after ESC) onto the pen.
 
-        These are treated as non-spacing here — they change the current pen and
-        apply to glyphs written afterwards. Real Minitel colour attributes are
-        *serial/spacing* (each occupies a cell); modelling that exactly needs a
-        live terminal to validate against and is tracked as a follow-up
-        (ROADMAP 0.7). Unknown codes are ignored.
+        Returns ``True`` if ``code`` was a recognised display attribute. These are
+        *serial/spacing* on a real Minitel — each occupies a screen cell — so the
+        caller writes a blank cell after applying it (validated against MiniPavi's
+        byte stream). Unknown codes return ``False`` and consume nothing extra.
         """
         s = self.screen
         if C.ATTR_FG_BASE <= code <= C.ATTR_FG_BASE + 7:
@@ -254,6 +266,9 @@ class Decoder:
             s.set_pen(inverse=True)
         elif code == C.ATTR_INVERSE_OFF:
             s.set_pen(inverse=False)
+        else:
+            return False
+        return True
 
     @property
     def text(self) -> str:
