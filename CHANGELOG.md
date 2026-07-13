@@ -5,6 +5,16 @@ All notable changes to this project are documented here. Format loosely follows
 
 ## [Unreleased]
 
+### Added — the GUI front-end (window)
+- A real Minitel Workbench window: destination buttons (MiniPavi / Retrocampus /
+  Local Demo), a live mirror of the terminal screen, a status line, and a toolbar
+  (Clear screen, Link info, What's online, Resources).
+- Logic lives in a testable, Tk-free `gui/controller.py` (headless tests drive the
+  real bridge to the demo); `gui/app.py` is a thin view. Launch with
+  `python -m minitel_workbench.gui` or the "Minitel Workbench" Desktop icon.
+- Follow-ups: colour mirror (Text tags) and a packaged `.app`.
+
+
 ### Changed / Removed — AI scope + easier relaunch
 - **Removed the built-in `minitel ai` page generator** (and `ai.py`). Per the
   Constitution, AI is *a service you connect to* (e.g. Retrocampus's Patreon

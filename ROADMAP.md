@@ -10,14 +10,14 @@ marketing. Status reflects what is actually in the tree.
 | 0.3 | WebSocket transport (Retrocampus/`ws` servers), Local Demo service | ✅ done |
 | 0.4 | Session recording (bidirectional, timestamped) | ✅ done |
 | 0.5 | Mac mirror — text/semigraphics (capability L1) | ✅ done (L1) |
-| 0.6 | Tkinter GUI shell + first-run wizard | ✅ done (skeleton) |
+| 0.6 | Tkinter GUI front-end (window, live mirror, toolbar) | ✅ done |
 | 0.7 | **CEPT renderer** — colour/blink/inverse/underline/conceal/size + ANSI & HTML output (L2) | ✅ done (L2); DRCS + serial-attribute semantics pending |
 | 0.8 | Telephone assistant (bilingual dial guide, service status monitor) | ✅ done |
 | 0.9 | Studio — `.vdt` viewer, page builder, local serve | ✅ done (AI generator removed by design — AI is a service you connect to) |
 | 0.10 | Museum & Resources (curated external links + credits) | ✅ done |
 | 0.11 | Developer — protocol inspector, packet capture, local microserver, live monitor | 🚧 inspector + capture + microserver done; live monitor pending |
 | 0.12 | Benchmark suite (throughput + safe multi-speed sweep, recover to 1200 7E1) | ✅ done |
-| 1.0 | Polish, docs site, packaged `.app`, community launch | 🚧 docs + build script done; GUI/.app polish pending |
+| 1.0 | Polish, docs site, packaged `.app`, community launch | 🚧 GUI window done; colour mirror + .app polish pending |
 
 ### CEPT status (0.7)
 
