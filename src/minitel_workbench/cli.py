@@ -279,8 +279,9 @@ def cmd_benchmark(args: argparse.Namespace) -> int:
         STANDARD_SPEEDS,
         SpeedVerdict,
         make_throughput_payload,
-        measure_write_throughput,
+        measure_loopback,
         run_sweep,
+        theoretical_cps,
     )
     from .hardware.capability import profile_for_model
     from .hardware.detect import best_adapter
@@ -298,22 +299,35 @@ def cmd_benchmark(args: argparse.Namespace) -> int:
 
     interactive = sys.stdout.isatty() and sys.stdin.isatty()
 
-    if not args.all:
-        # Baseline throughput at 1200 7E1. The payload must be large enough to
-        # overflow the adapter's buffers, so this deliberately takes a while.
+    if args.loopback:
+        # Real measurement — but only with a TX<->RX jumper on the adapter.
         payload = make_throughput_payload(args.bytes)
-        est = args.bytes / 120  # ~120 cps at 1200 7E1
-        print(f"Measuring throughput at 1200 7E1 by sending {args.bytes} bytes")
-        print(f"(a stream of text will fill the Minitel; ~{est:.0f}s — please wait)…")
+        print(f"Loopback test at 1200 7E1 ({args.bytes} bytes). Needs a TX↔RX jumper.")
         link = open_at(1200, "7E1")
         try:
-            result = measure_write_throughput(link, payload, baud=1200, framing="7E1")
+            result = measure_loopback(link, payload, timeout=max(10.0, args.bytes / 60))
         finally:
             link.close()
-        print(f"\n  {result.chars_per_sec:6.1f} chars/sec over {result.seconds:.1f}s")
-        print(f"  effective bit rate ≈ {result.chars_per_sec * 10:.0f} baud (10 bits/char, 7E1)")
-        print(f"  a full 1000-char page takes ≈ {result.est_page_seconds():.1f}s")
-        print("\nRun the full multi-speed sweep with:  minitel benchmark --all")
+        if result is None:
+            print("\n  No bytes came back — is the TX↔RX loopback jumper in place?")
+            print("  (This tests the adapter/cable, not a Minitel.)")
+            return 1
+        print(f"\n  {result.chars_per_sec:6.1f} chars/sec round-trip over {result.seconds:.1f}s")
+        return 0
+
+    if not args.all:
+        # An honest baseline. The host CANNOT time a buffered, non-echoing link,
+        # so we report the theoretical ceiling and say why.
+        cps = theoretical_cps(1200, "7E1")
+        print("Minitel serial link — 1200 baud, 7E1\n")
+        print(f"  theoretical throughput: {cps:.0f} chars/sec (10 bits per character)")
+        print(f"  a full 1000-char page:  ≈ {1000 / cps:.1f}s")
+        print(
+            "\n  Note: a USB serial adapter buffers all output and the Minitel does"
+            "\n  not echo in local mode, so the host cannot time the wire directly."
+            "\n  To measure an adapter empirically, use --loopback with a TX↔RX jumper."
+            "\n  To see which speeds your terminal renders, use --all (watch the screen)."
+        )
         return 0
 
     speeds = STANDARD_SPEEDS + (EXPERIMENTAL_SPEEDS if args.experimental else ())
@@ -337,10 +351,11 @@ def cmd_benchmark(args: argparse.Namespace) -> int:
 
     verdicts: list[SpeedVerdict] = run_sweep(open_at, speeds, verify)
 
-    print("\n  MINITEL CAPABILITY REPORT\n")
+    print("\n  MINITEL CAPABILITY REPORT")
+    print("  (speed shows the theoretical rate; the verdict is what you saw)\n")
     clean = []
     for v in verdicts:
-        cps = f"{v.throughput.chars_per_sec:6.1f} cps" if v.throughput else "     —"
+        cps = f"{theoretical_cps(v.baud, v.framing):5.0f} cps"
         print(f"    {v.baud:>6} {v.framing}   {cps}   {v.rendering}")
         if v.rendering == "clean":
             clean.append(v.baud)
@@ -607,7 +622,12 @@ def build_parser() -> argparse.ArgumentParser:
         "--bytes",
         type=int,
         default=2000,
-        help="payload size for the baseline throughput test (default 2000)",
+        help="payload size for the loopback test (default 2000)",
+    )
+    p_bench.add_argument(
+        "--loopback",
+        action="store_true",
+        help="measure real throughput via a TX↔RX jumper (tests the adapter, not a Minitel)",
     )
     p_bench.set_defaults(func=cmd_benchmark)
 

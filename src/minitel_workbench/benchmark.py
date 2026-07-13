@@ -1,12 +1,17 @@
-"""Measure a Minitel's peripheral serial link.
+"""Characterise a Minitel's peripheral serial link — honestly.
 
-Two things are measurable from the Mac side alone:
+A hard-won lesson from real hardware: you **cannot** time write throughput to a
+Minitel from the host. A USB serial adapter buffers the whole payload and returns
+immediately (it clocks the bits out at the line rate in the background), and the
+terminal does not echo in local mode — so there is nothing to time against. What
+*is* knowable:
 
-* **write throughput** — how fast bytes actually leave for the terminal at a
-  given baud (send a known payload, time it to full drain);
-* **does a speed render** — by sending a recognisable pattern and asking the
-  person to look at the screen (the terminal doesn't echo in local mode, so
-  correctness can only be confirmed by eye).
+* **theoretical throughput** — from the baud and framing (``theoretical_cps``);
+* **which speeds actually render** — send a recognisable page and let the person
+  look at the screen (``run_sweep``);
+* **real adapter throughput** — only with a TX↔RX loopback jumper, which lets us
+  read back what we wrote (``measure_loopback``). This tests the adapter/cable,
+  not a Minitel.
 
 The design notebook asked for an *all-speeds* sweep so the tool helps every
 owner, and for it to be **safe**: it always returns the link to the known-good
@@ -52,6 +57,48 @@ class SpeedVerdict:
     rendering: str  # "clean" | "garbled" | "nothing" | "skipped"
 
 
+def bits_per_char(framing: str) -> int:
+    """Serial bits per character for a framing like '7E1' or '8N1'."""
+    data = int(framing[0])
+    parity = 0 if framing[1].upper() == "N" else 1
+    stop = int(framing[2])
+    return 1 + data + parity + stop  # 1 start bit + data + parity + stop
+
+
+def theoretical_cps(baud: int, framing: str = "7E1") -> float:
+    """The line's characters/second ceiling — an honest figure the host *can*
+    state, since it can't time a buffered, non-echoing link directly."""
+    return baud / bits_per_char(framing)
+
+
+def measure_loopback(
+    link: object,
+    payload: bytes,
+    *,
+    timeout: float = 5.0,
+    clock: Callable[[], float] = time.perf_counter,
+) -> ThroughputResult | None:
+    """Write ``payload`` and read it back, timing the round trip.
+
+    This is the *only* way to measure real throughput from the host, and it needs
+    the adapter's TX and RX shorted together (a loopback jumper) — it is a test of
+    the **adapter/cable**, not of a Minitel. Returns ``None`` if the bytes never
+    came back (no jumper).
+    """
+    got = bytearray()
+    start = clock()
+    link.write(payload)
+    deadline = start + timeout
+    while len(got) < len(payload) and clock() < deadline:
+        chunk = link.read(len(payload) - len(got))
+        if chunk:
+            got.extend(chunk)
+    elapsed = clock() - start
+    if len(got) < len(payload):
+        return None
+    return ThroughputResult(baud=0, framing="", bytes_sent=len(payload), seconds=elapsed)
+
+
 def make_throughput_payload(nbytes: int = 2000) -> bytes:
     """A large block of printable text for timing.
 
@@ -89,11 +136,12 @@ def measure_write_throughput(
     framing: str,
     clock: Callable[[], float] = time.perf_counter,
 ) -> ThroughputResult:
-    """Write ``payload`` through ``link`` and time it to full drain.
+    """Time how long ``link.write`` takes to hand off ``payload``.
 
-    ``link.write`` is expected to block until the bytes have been handed to the
-    UART (``SerialLink.write`` flushes), so the elapsed time reflects the real
-    line rate.
+    NOTE: over a buffering USB adapter this measures the USB hand-off, **not** the
+    serial wire (see the module docstring). Kept for the sweep's internal use and
+    for links that genuinely block on drain; do not present its rate as the line
+    speed.
     """
     start = clock()
     link.write(payload)

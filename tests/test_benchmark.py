@@ -8,6 +8,56 @@ from minitel_workbench.benchmark import (
 )
 
 
+def test_bits_per_char_and_theoretical():
+    from minitel_workbench.benchmark import bits_per_char, theoretical_cps
+
+    assert bits_per_char("7E1") == 10
+    assert bits_per_char("8N1") == 10
+    assert bits_per_char("7E2") == 11
+    assert theoretical_cps(1200, "7E1") == 120.0
+    assert theoretical_cps(4800, "7E1") == 480.0
+
+
+class _EchoLink:
+    def __init__(self):
+        self._buf = bytearray()
+
+    def write(self, data):
+        self._buf.extend(data)
+
+    def read(self, n=4096):
+        out = bytes(self._buf[:n])
+        del self._buf[:n]
+        return out
+
+    def close(self):
+        pass
+
+
+def test_measure_loopback_success_when_echoed():
+    from minitel_workbench.benchmark import measure_loopback
+
+    r = measure_loopback(_EchoLink(), b"HELLO", timeout=1.0)
+    assert r is not None
+    assert r.bytes_sent == 5
+
+
+def test_measure_loopback_none_without_jumper():
+    from minitel_workbench.benchmark import measure_loopback
+
+    class Silent:
+        def write(self, data):
+            pass
+
+        def read(self, n=4096):
+            return b""
+
+        def close(self):
+            pass
+
+    assert measure_loopback(Silent(), b"HELLO", timeout=0.2) is None
+
+
 def test_throughput_payload_size_and_content():
     p = make_throughput_payload(2000)
     assert len(p) == 2001  # FF + 2000 bytes
