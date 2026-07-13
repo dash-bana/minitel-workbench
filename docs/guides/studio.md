@@ -1,33 +1,51 @@
-# Studio — make and serve your own pages
+# Pages — make, view, and serve your own
 
 You don't need a terminal for any of this except the final `serve`.
 
-## Generate a page with AI
+## Design principle: AI is a service you connect to
 
-```bash
-minitel ai "a weather page for Paris, cyan title, 3-day forecast"
+Minitel Workbench does **not** call AI APIs and never asks for an API key. "AI"
+in the Minitel world means a *service you connect to* — for example Retrocampus,
+which offers Mistral and ChatGPT to its Patreon supporters. You reach it by
+connecting your Minitel to that service (`minitel connect retrocampus`); the AI
+runs there, not here. See [`CONSTITUTION.md`](../../CONSTITUTION.md).
+
+## Build a page
+
+Pages are plain Videotex (`.vdt`) — a stream of the bytes a Minitel understands.
+The `videotex.page` module builds valid pages from a simple spec, so you never
+hand-write control codes:
+
+```python
+from minitel_workbench.videotex.page import build_page
+
+page = build_page({
+    "title": "METEO PARIS",
+    "lines": [
+        {"text": "Ciel clair", "colour": "cyan"},
+        {"text": "18 degres"},
+        {"text": "Vent 12 km/h SO"},
+    ],
+    "footer": "SOMMAIRE pour revenir",
+})
+open("weather.vdt", "wb").write(page)
 ```
 
-The model returns a small JSON *page spec* (title, lines, colours) and Workbench
-turns it into correct Videotex — the AI never touches raw control bytes, so the
-result is always valid. Provider order follows the project's roots: **Mistral
-first**, then ChatGPT.
-
-```bash
-export MISTRAL_API_KEY=...          # real generation with Mistral
-minitel ai "menu for a home dashboard: weather, mail, clock" --save home.vdt
-minitel ai "1986-style news page" --html news.html   # colour screenshot
-```
-
-With no key set, it still works — it produces a simple offline placeholder page
-and tells you how to enable real generation. Force a provider with
-`--provider mistral|chatgpt|offline`.
+Colour codes are ignored gracefully on a monochrome terminal (Constitution
+rule VII), so the same page is safe on any model.
 
 ## Preview a page
 
 ```bash
-minitel view home.vdt              # in the terminal (colour if supported)
-minitel view home.vdt --html home.html
+minitel view weather.vdt              # in the terminal (colour if supported)
+minitel view weather.vdt --html weather.html
+minitel view session.mtr --filmstrip pages.html   # every screen of a recording
+```
+
+## Inspect the bytes
+
+```bash
+minitel inspect weather.vdt           # cursor moves, colours, text runs, named
 ```
 
 ## Serve your pages to a real Minitel
@@ -44,10 +62,4 @@ hardware:
 
 ```bash
 minitel serve ~/minitel-pages --preview
-```
-
-## Inspect the bytes
-
-```bash
-minitel inspect home.vdt           # cursor moves, colours, text runs, named
 ```

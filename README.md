@@ -89,12 +89,13 @@ mirror** (ANSI + HTML), a **telephone dialing assistant** and **service status
 monitor**, a **protocol inspector** and **`.vdt`/recording viewer**, and a curated
 **resources/museum** directory with credits.
 
-Also: a **benchmark** for the serial link, an **AI page generator** (Mistral-first,
-with an offline fallback), a **local microserver** that serves your own pages to
-the terminal, and a Videotex **page builder**.
+Also: a **benchmark** for the serial link, a **local microserver** that serves
+your own pages to the terminal, a Videotex **page builder**, and a one-line
+**`clear`** for a garbled screen. (AI is deliberately *a service you connect to* —
+e.g. Retrocampus — not something Workbench calls with a key; see the Constitution.)
 
-CLI surface: `list · scan · doctor · demo · status · resources · call · view ·
-inspect · ai · serve · benchmark · connect`.
+CLI surface: `list · scan · doctor · demo · clear · status · resources · call ·
+view · inspect · serve · benchmark · connect`.
 
 Planned: DRCS + serial-attribute rendering, a visual `.vdt` editor, a richer live
 GUI monitor, and a packaged `.app`.

@@ -78,6 +78,15 @@ The renderer and page tools use capability levels (L1 monochrome text +
 semigraphics, L2 color, L3 DRCS, …). The app keeps an internal capability
 profile per model and quietly does the right thing.
 
+### VIII·b. AI is a service you connect to — Workbench never calls AI APIs.
+"AI" in the Minitel world means a *service you connect to* (e.g. Retrocampus,
+which offers Mistral and ChatGPT to Patreon supporters, reached by connecting the
+Minitel to it). Workbench surfaces and routes to those services and credits them
+(Mistral before ChatGPT) — but it does **not** call AI APIs itself, store or ship
+API keys, or generate content on the user's behalf. This keeps the project free
+of per-user billing, shared-key liability, and scope creep. Decided deliberately;
+a built-in page generator was built and then removed to honour it.
+
 ### VIII. Community before technology.
 Send traffic to the people who keep this ecosystem alive. Link to the museums
 and archives rather than silently absorbing their work. Credit everyone.

@@ -5,6 +5,17 @@ All notable changes to this project are documented here. Format loosely follows
 
 ## [Unreleased]
 
+### Changed / Removed — AI scope + easier relaunch
+- **Removed the built-in `minitel ai` page generator** (and `ai.py`). Per the
+  Constitution, AI is *a service you connect to* (e.g. Retrocampus's Patreon
+  Mistral/ChatGPT), not something Workbench calls with a key. No API keys anywhere.
+- `minitel connect` with **no service** now reconnects to your last-used one.
+- Double-click launcher `scripts/Minitel Connect.command` — get back online with
+  no terminal commands (finds the project, activates the venv, connects).
+- Added `minitel clear` to reset a garbled screen (content + status row 0), and
+  de-duplicated one adapter that macOS exposes under two device nodes.
+
+
 ### Added — session filmstrip (from real use)
 - `minitel view <file> --filmstrip out.html` renders *every* page a session
   displayed, not just the final screen. Found because `view` showed a recording's

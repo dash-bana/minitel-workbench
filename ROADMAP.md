@@ -13,7 +13,7 @@ marketing. Status reflects what is actually in the tree.
 | 0.6 | Tkinter GUI shell + first-run wizard | ✅ done (skeleton) |
 | 0.7 | **CEPT renderer** — colour/blink/inverse/underline/conceal/size + ANSI & HTML output (L2) | ✅ done (L2); DRCS + serial-attribute semantics pending |
 | 0.8 | Telephone assistant (bilingual dial guide, service status monitor) | ✅ done |
-| 0.9 | Studio — `.vdt` viewer, page builder, AI page generation | ✅ viewer + builder + AI done; visual editor pending |
+| 0.9 | Studio — `.vdt` viewer, page builder, local serve | ✅ done (AI generator removed by design — AI is a service you connect to) |
 | 0.10 | Museum & Resources (curated external links + credits) | ✅ done |
 | 0.11 | Developer — protocol inspector, packet capture, local microserver, live monitor | 🚧 inspector + capture + microserver done; live monitor pending |
 | 0.12 | Benchmark suite (throughput + safe multi-speed sweep, recover to 1200 7E1) | ✅ done |
