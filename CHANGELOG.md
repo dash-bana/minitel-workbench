@@ -5,6 +5,20 @@ All notable changes to this project are documented here. Format loosely follows
 
 ## [Unreleased]
 
+### Hardware-verified + fixes from a real MiniPavi session
+- **Verified the serial bridge against a physical Minitel** (Radiotechnique NFZ
+  300) connecting to MiniPavi: clean rendering and keyboard navigation.
+- Decoder now handles Videotex **REP** (`0x12` run-length repeat) — fills and
+  lines that were missing from the mirror now render.
+- Decoder and inspector now recognise Minitel **PRO1/2/3** protocol sequences
+  (`ESC 0x39/0x3A/0x3B`) instead of mis-printing their parameters as text.
+- **Auto-reconnect**: `minitel connect` re-establishes a dropped session
+  automatically (default up to 60 min; `--no-reconnect`, `--reconnect-for MIN`),
+  so an idle timeout no longer means walking back to the machine. TCP keepalive
+  enabled to detect silent drops.
+- `minitel inspect --direction` values are now shell-safe (`shown` / `typed`)
+  instead of `service->terminal` (the `>` was parsed as a shell redirect).
+
 ### Added — Museum & Resources + credits (0.10)
 - `minitel resources` — curated external links (Musée du Minitel, Alcatel museum,
   Wikipedia, Le Monde, telematics history) plus community/tool credits, grouped

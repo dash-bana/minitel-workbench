@@ -77,12 +77,16 @@ adding a service is a one-line contribution, not a release.
 
 ## Status
 
-Working today (all verified with **no hardware, no network** — see the
-[roadmap](ROADMAP.md)): direct serial↔TCP bridge with Telnet filtering,
-WebSocket transport, offline demo, auto-detect, persistent config, service
-directory, bidirectional recording, a **CEPT level-2 colour mirror** (ANSI +
-HTML), a **telephone dialing assistant** and **service status monitor**, a
-**protocol inspector** and **`.vdt`/recording viewer**, and a curated
+**Verified against a physical Minitel** (a 1984 Radiotechnique NFZ 300): the
+bridge connected to MiniPavi over the USB serial link, drew pages cleanly, and
+navigated by keyboard. Real MiniPavi output also drove the decoder to handle
+Videotex **REP** run-length fills and Minitel **PRO** protocol sequences.
+
+Working today: direct serial↔TCP bridge with Telnet filtering, WebSocket
+transport, **auto-reconnect** on idle drop, offline demo, auto-detect, persistent
+config, service directory, bidirectional recording, a **CEPT level-2 colour
+mirror** (ANSI + HTML), a **telephone dialing assistant** and **service status
+monitor**, a **protocol inspector** and **`.vdt`/recording viewer**, and a curated
 **resources/museum** directory with credits.
 
 CLI surface: `list · scan · doctor · demo · status · resources · call · view ·
@@ -91,10 +95,6 @@ inspect · connect`.
 Planned: DRCS + serial-attribute rendering, a `.vdt` editor with AI page
 generation, a live GUI monitor and local microserver, and the all-speeds
 benchmark.
-
-The one thing not yet done: exercising the serial path against a **physical
-Minitel** — this repo was built on a machine with none attached. If you have a
-terminal, that's the verification we'd love a hand with.
 
 ## Contributing
 

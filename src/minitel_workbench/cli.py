@@ -208,13 +208,6 @@ def cmd_connect(args: argparse.Namespace) -> int:
         print(str(exc))
         return 1
 
-    try:
-        transport = build_transport(svc.access, name=svc.name)
-    except (UnsupportedTransport, RuntimeError) as exc:
-        print(str(exc))
-        link.close()
-        return 1
-
     recorder = None
     if settings.record_sessions or args.record:
         from .recording import Recorder
@@ -225,22 +218,57 @@ def cmd_connect(args: argparse.Namespace) -> int:
         print(f"Recording this session to {path}")
 
     decoder = Decoder() if args.mirror else None
-    bridge = Bridge(link, transport, recorder=recorder, monitor=decoder)
-
     settings.last_serial_device = adapter.device
     settings.default_service = svc.id
     settings.save()
 
-    print("Connected. Leave the Minitel at F (local mode). Press Ctrl-C here to stop.\n")
+    reconnect = not args.no_reconnect
+    deadline = time.monotonic() + args.reconnect_for * 60
+    print("Connected. Leave the Minitel at F (local mode). Press Ctrl-C here to stop.")
+    if reconnect:
+        print(
+            f"If the service drops the session, it reconnects automatically "
+            f"(for up to {args.reconnect_for} min)."
+        )
+    print()
+
+    stopped = False
+    first = True
     try:
-        bridge.run()
+        while not stopped:
+            try:
+                transport = build_transport(svc.access, name=svc.name)
+            except (UnsupportedTransport, RuntimeError) as exc:
+                print(str(exc))
+                break
+            if not first:
+                print("Reconnected.")
+            first = False
+
+            bridge = Bridge(
+                link,
+                transport,
+                recorder=recorder,
+                monitor=decoder,
+                close_link=False,
+                close_recorder=False,
+            )
+            bridge.run()  # returns when the service closes the connection
+
+            if not reconnect or time.monotonic() >= deadline:
+                break
+            print("Service dropped the session — reconnecting in 2s … (Ctrl-C to stop)")
+            time.sleep(2)
     except KeyboardInterrupt:
-        pass
+        stopped = True
     finally:
-        bridge.close()
+        link.close()
+        if recorder is not None:
+            recorder.close()
+
     if decoder is not None:
         print("\nLast screen:")
-        print(decoder.screen.framed())
+        print(decoder.screen.framed(color=sys.stdout.isatty()))
     print("Disconnected.")
     return 0
 
@@ -325,10 +353,13 @@ def cmd_view(args: argparse.Namespace) -> int:
     return 0
 
 
+_DIRECTIONS = {"shown": "service->terminal", "typed": "terminal->service"}
+
+
 def cmd_inspect(args: argparse.Namespace) -> int:
     from .videotex.protocol import describe_stream, format_events
 
-    data = _load_stream(args.file, args.direction)
+    data = _load_stream(args.file, _DIRECTIONS[args.direction])
     events = describe_stream(data)
     print(f"{len(data)} bytes, {len(events)} events:\n")
     print(format_events(events))
@@ -372,9 +403,9 @@ def build_parser() -> argparse.ArgumentParser:
     p_inspect.add_argument("file", help="a .vdt dump or a .mtr recording")
     p_inspect.add_argument(
         "--direction",
-        default="service->terminal",
-        choices=["service->terminal", "terminal->service"],
-        help="for .mtr recordings: which side to inspect",
+        default="shown",
+        choices=["shown", "typed"],
+        help="for .mtr recordings: 'shown' (service→Minitel) or 'typed' (keyboard→service)",
     )
     p_inspect.set_defaults(func=cmd_inspect)
 
@@ -382,6 +413,16 @@ def build_parser() -> argparse.ArgumentParser:
     p_connect.add_argument("service", help="service id or name (e.g. retrocampus, minipavi, demo)")
     p_connect.add_argument("--mirror", action="store_true", help="show the last screen on exit")
     p_connect.add_argument("--record", action="store_true", help="record this session")
+    p_connect.add_argument(
+        "--no-reconnect", action="store_true", help="do not auto-reconnect if the service drops"
+    )
+    p_connect.add_argument(
+        "--reconnect-for",
+        type=int,
+        default=60,
+        metavar="MIN",
+        help="keep auto-reconnecting for this many minutes (default 60)",
+    )
     p_connect.set_defaults(func=cmd_connect)
     return parser
 

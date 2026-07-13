@@ -31,10 +31,12 @@ model them as non-spacing pen changes). Neither reduces older-terminal support.
 
 ## What "done" means here
 
-The 0.1–0.7 items above are implemented and covered by tests that run with **no
-hardware and no network**. They have not yet been exercised against a physical
-Minitel on this machine (none is attached) — that is the one verification step
-that still needs a human with the terminal. See `docs/guides/getting-started.md`.
+The 0.1–0.10 items above are implemented and covered by tests that run with **no
+hardware and no network**. The serial bridge and the decoder are additionally
+**verified against a physical Minitel** (a 1984 Radiotechnique NFZ 300 on
+MiniPavi): pages drew cleanly and keyboard navigation worked. That real session
+also drove two decoder fixes — Videotex **REP** (run-length fills) and Minitel
+**PRO1/2/3** protocol sequences — plus **auto-reconnect** on idle disconnect.
 
 ## Definition of Done (per change, borrowed from the notebook)
 

@@ -57,6 +57,11 @@ terminal. Do it on the machine the Minitel is plugged into.
    Add `--record` to save the session, or `--mirror` to print the last screen on
    exit. Press Ctrl-C to disconnect.
 
+   If the service drops your session after a while of inactivity, Workbench
+   **reconnects automatically** (for up to 60 minutes) — you don't have to
+   re-run anything. Use `--no-reconnect` to turn that off, or
+   `--reconnect-for MIN` to change the window.
+
 ### The serial settings, for the curious
 
 Workbench opens the port at **1200 baud, 7 data bits, even parity, 1 stop bit

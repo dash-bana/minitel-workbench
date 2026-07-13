@@ -79,6 +79,7 @@ class Decoder:
         self._buf = bytearray()
         self._graphic = False  # False = G0 text, True = G1 semigraphics
         self._pending_combining: str | None = None
+        self._last_glyph = " "  # for REP (run-length repeat)
 
     def feed(self, data: bytes) -> None:
         """Consume bytes, applying every complete token to the screen."""
@@ -100,10 +101,29 @@ class Decoder:
                 i += 3
                 continue
 
+            if b == C.REP:
+                # Repeat the last glyph (count = low 6 bits of the next byte).
+                if i + 1 >= n:
+                    break
+                count = buf[i + 1] & 0x3F
+                for _ in range(count):
+                    self.screen.put(self._last_glyph)
+                i += 2
+                continue
+
             if b == C.ESC:
                 if i + 1 >= n:
                     break
-                self._apply_attribute(buf[i + 1] & 0x7F)
+                code = buf[i + 1] & 0x7F
+                param_len = C.pro_param_len(code)
+                if param_len is not None:
+                    # Minitel protocol sequence (PRO1/2/3): consume its params
+                    # and ignore for display — it is control, not content.
+                    if i + 2 + param_len > n:
+                        break
+                    i += 2 + param_len
+                    continue
+                self._apply_attribute(code)
                 i += 2
                 continue
 
@@ -173,13 +193,14 @@ class Decoder:
             # --- printable ------------------------------------------------
             if 0x20 <= b <= 0x7F:
                 if self._graphic:
-                    self.screen.put(_mosaic_glyph(b))
+                    ch = _mosaic_glyph(b)
                 else:
                     ch = chr(b)
                     if self._pending_combining:
                         ch = unicodedata.normalize("NFC", ch + self._pending_combining)
                         self._pending_combining = None
-                    self.screen.put(ch)
+                self.screen.put(ch)
+                self._last_glyph = ch
                 i += 1
                 continue
 

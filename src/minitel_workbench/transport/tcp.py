@@ -29,6 +29,8 @@ class TcpTransport(ByteChannel):
         self.host = host
         self.port = port
         self._sock = socket.create_connection((host, port), timeout=connect_timeout)
+        # Detect a silently dropped connection so auto-reconnect can kick in.
+        self._sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
         self._sock.setblocking(False)
         self._filter = TelnetFilter() if telnet else None
 

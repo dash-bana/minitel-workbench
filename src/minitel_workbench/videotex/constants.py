@@ -28,6 +28,21 @@ SS2 = 0x19  # single shift 2 -> next char from G2 (accents, symbols)
 RS = 0x1E  # cursor home (row 1, col 1)
 US = 0x1F  # cursor positioning: US <0x40+row> <0x40+col>
 SEP = 0x13  # separator: introduces a Minitel function-key code
+REP = 0x12  # repeat previous glyph: REP <0x40+count>
+CURSOR_ON = 0x11  # DC1 — show cursor
+CURSOR_OFF = 0x14  # DC4 — hide cursor
+
+# Minitel protocol sequences: ESC followed by one of these, then N param bytes.
+PRO1 = 0x39
+PRO2 = 0x3A
+PRO3 = 0x3B
+_PRO_PARAM_LEN = {PRO1: 1, PRO2: 2, PRO3: 3}
+
+
+def pro_param_len(code: int) -> int | None:
+    """Number of parameter bytes after ``ESC <code>`` for a PRO sequence, or None."""
+    return _PRO_PARAM_LEN.get(code)
+
 
 # Offset added to row/column numbers in a US positioning sequence.
 POS_OFFSET = 0x40

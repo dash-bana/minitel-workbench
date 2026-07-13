@@ -25,11 +25,17 @@ class Bridge:
         *,
         recorder: object | None = None,
         monitor: object | None = None,
+        close_link: bool = True,
+        close_recorder: bool = True,
     ) -> None:
         self.link = link
         self.transport = transport
         self.recorder = recorder
         self.monitor = monitor
+        # When reconnecting, the caller reuses one link and one recorder across
+        # many transports, so a per-session Bridge must not close them.
+        self._close_link = close_link
+        self._close_recorder = close_recorder
         self._closed = False
 
     def pump(self, timeout: float = 0.1) -> bool:
@@ -96,9 +102,10 @@ class Bridge:
         if self._closed:
             return
         self._closed = True
-        self.link.close()
         self.transport.close()
-        if self.recorder is not None:
+        if self._close_link:
+            self.link.close()
+        if self._close_recorder and self.recorder is not None:
             close = getattr(self.recorder, "close", None)
             if callable(close):
                 close()

@@ -82,8 +82,19 @@ def describe_stream(data: bytes) -> list[Event]:
             emit(i, i + 3, f"cursor → row {row} col {col}")
             i += 3
             continue
+        if b == C.REP and i + 1 < n:
+            emit(i, i + 2, f"repeat previous glyph ×{data[i + 1] & 0x3F}")
+            i += 2
+            continue
         if b == C.ESC and i + 1 < n:
-            emit(i, i + 2, _attr_description(data[i + 1] & 0x7F))
+            code = data[i + 1] & 0x7F
+            param_len = C.pro_param_len(code)
+            if param_len is not None and i + 2 + param_len <= n:
+                pro = {C.PRO1: "PRO1", C.PRO2: "PRO2", C.PRO3: "PRO3"}[code]
+                emit(i, i + 2 + param_len, f"{pro} protocol sequence")
+                i += 2 + param_len
+                continue
+            emit(i, i + 2, _attr_description(code))
             i += 2
             continue
         if b == C.SS2 and i + 1 < n:
