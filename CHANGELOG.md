@@ -5,6 +5,13 @@ All notable changes to this project are documented here. Format loosely follows
 
 ## [Unreleased]
 
+### Added — benchmark suite (0.12)
+- `minitel benchmark` measures write throughput at 1200 7E1 (chars/sec, est. page
+  time); `--all` sweeps 300/1200/4800/9600 (add `--experimental` for 19200) with
+  a human clean/garbled/nothing check per speed, and **always recovers to 1200
+  7E1** (recovery is in a `finally`, so even an abort leaves the link safe).
+
+
 ### Hardware-verified + fixes from a real MiniPavi session
 - **Verified the serial bridge against a physical Minitel** (Radiotechnique NFZ
   300) connecting to MiniPavi: clean rendering and keyboard navigation.

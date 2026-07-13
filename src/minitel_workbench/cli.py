@@ -273,6 +273,82 @@ def cmd_connect(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_benchmark(args: argparse.Namespace) -> int:
+    from .benchmark import (
+        EXPERIMENTAL_SPEEDS,
+        STANDARD_SPEEDS,
+        SpeedVerdict,
+        make_test_payload,
+        measure_write_throughput,
+        run_sweep,
+    )
+    from .hardware.capability import profile_for_model
+    from .hardware.detect import best_adapter
+    from .hardware.link import SerialLink
+
+    adapter = best_adapter()
+    if adapter is None:
+        print("No Minitel connection found — the benchmark needs the cable.")
+        return 1
+
+    profile = profile_for_model(None)
+
+    def open_at(baud: int, _framing: str) -> SerialLink:
+        return SerialLink.open(adapter.device, profile, speed=baud)
+
+    interactive = sys.stdout.isatty() and sys.stdin.isatty()
+
+    if not args.all:
+        # Quick baseline: throughput at the known-good 1200 7E1.
+        print("Measuring throughput at 1200 7E1 (a test page will appear on the Minitel)…")
+        link = open_at(1200, "7E1")
+        try:
+            result = measure_write_throughput(
+                link, make_test_payload("1200 7E1"), baud=1200, framing="7E1"
+            )
+        finally:
+            link.close()
+        print(
+            f"\n  {result.chars_per_sec:6.1f} chars/sec   "
+            f"(~{result.est_page_seconds():.1f}s for a 1000-char page)"
+        )
+        print("\nRun the full sweep with:  minitel benchmark --all")
+        return 0
+
+    speeds = STANDARD_SPEEDS + (EXPERIMENTAL_SPEEDS if args.experimental else ())
+    print("Full speed sweep. A labelled test page is sent at each speed.")
+    print("Your Minitel's peripheral port has a fixed speed, so higher speeds")
+    print("will likely garble — that's expected and safe; it always returns to")
+    print("1200 7E1 at the end.\n")
+
+    def verify(baud: int, framing: str) -> str:
+        if not interactive:
+            return "skipped"
+        ans = (
+            input(
+                f"  {baud} {framing}: look at the Minitel — [c]lean / [g]arbled / "
+                f"[n]othing / [s]kip? "
+            )
+            .strip()
+            .lower()
+        )
+        return {"c": "clean", "g": "garbled", "n": "nothing", "s": "skipped"}.get(ans, "skipped")
+
+    verdicts: list[SpeedVerdict] = run_sweep(open_at, speeds, verify)
+
+    print("\n  MINITEL CAPABILITY REPORT\n")
+    clean = []
+    for v in verdicts:
+        cps = f"{v.throughput.chars_per_sec:6.1f} cps" if v.throughput else "     —"
+        print(f"    {v.baud:>6} {v.framing}   {cps}   {v.rendering}")
+        if v.rendering == "clean":
+            clean.append(v.baud)
+    best = max(clean) if clean else 1200
+    print(f"\n  Maximum verified clean speed: {best} baud")
+    print("  Link restored to 1200 7E1.")
+    return 0
+
+
 def cmd_call(args: argparse.Namespace) -> int:
     svc = _resolve_service(args.service)
     if svc is None:
@@ -389,6 +465,13 @@ def build_parser() -> argparse.ArgumentParser:
     p_status = sub.add_parser("status", help="check which services are online")
     p_status.add_argument("--timeout", type=float, default=5.0, help="probe timeout (seconds)")
     p_status.set_defaults(func=cmd_status)
+
+    p_bench = sub.add_parser("benchmark", help="measure your Minitel's serial link")
+    p_bench.add_argument("--all", action="store_true", help="sweep all standard speeds")
+    p_bench.add_argument(
+        "--experimental", action="store_true", help="also try experimental speeds (19200+)"
+    )
+    p_bench.set_defaults(func=cmd_benchmark)
 
     p_resources = sub.add_parser("resources", help="museums, history, and community links")
     p_resources.add_argument("--open", metavar="ID", help="open a resource in your browser")

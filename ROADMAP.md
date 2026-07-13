@@ -16,7 +16,7 @@ marketing. Status reflects what is actually in the tree.
 | 0.9 | Studio — `.vdt` viewer (+HTML), page editor, AI page generation | 🚧 viewer done; editor + AI pending |
 | 0.10 | Museum & Resources (curated external links + credits) | ✅ done |
 | 0.11 | Developer — protocol inspector, packet capture, live monitor, local microserver | 🚧 inspector + capture done; live monitor + microserver pending |
-| 0.12 | Benchmark suite (all speeds × framings, safe recovery to 1200 7E1) | ⏳ planned |
+| 0.12 | Benchmark suite (throughput + safe multi-speed sweep, recover to 1200 7E1) | ✅ done |
 | 1.0 | Polish, docs site, packaged `.app`, community launch | ⏳ planned |
 
 ### CEPT status (0.7)
