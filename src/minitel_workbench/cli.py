@@ -494,11 +494,17 @@ def cmd_clear(args: argparse.Namespace) -> int:
         print("No Minitel connection found.")
         return 1
     link = SerialLink.open(adapter.device, profile_for_model(None))
-    # Normal size, text set (G0), then clear + home — undoes a garbled state.
-    link.write(bytes([C.ESC, 0x4C, C.SI, C.FF]))
+    seq = bytearray()
+    seq += bytes([C.ESC, 0x4C, C.SI, C.FF])  # normal size, text set (G0), clear content + home
+    # FF leaves the status line (row 0) untouched — clear it explicitly.
+    # Row 0 col 1 is US 0x40 0x41; CAN fills to end of the row with spaces.
+    seq += bytes([C.US, 0x40, 0x41, C.CAN])
+    seq += bytes([C.US, C.POS_OFFSET + 1, C.POS_OFFSET + 1])  # cursor back to content home
+    link.write(bytes(seq))
     time.sleep(0.3)
     link.close()
-    print("Cleared the Minitel screen.")
+    print("Cleared the Minitel screen (content + status line).")
+    print("The F in the top-right is the terminal's local-mode indicator — that stays.")
     return 0
 
 
