@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "updated": "2026-07-13",
+  "note": "Curated external resources. Per CONSTITUTION.md rule VIII/X, Workbench links out to the community's own archives and credits them, rather than absorbing their work. Opened in the user's normal browser, not squeezed onto a 40-column screen.",
+  "resources": [
+    {
+      "id": "musee-forum",
+      "title": "Musée du Minitel — forum",
+      "url": "https://forum.museeminitel.fr/",
+      "kind": "museum",
+      "language": "fr",
+      "note": "Hardware, software, Videotex/ASCII art, restoration and community discussion, organised around preserving Minitel heritage."
+    },
+    {
+      "id": "musee-alcatel",
+      "title": "Musée Minitel Alcatel",
+      "url": "https://www.minitel-alcatel.fr/musee.html",
+      "kind": "museum",
+      "language": "fr",
+      "note": "Extensive historical collection and model archive; downloadable documents (Touzalin/CCETT history 1978–1989, Les Échos Informatique 1991) via the site menu."
+    },
+    {
+      "id": "wikipedia-fr",
+      "title": "Minitel — Wikipédia (fr)",
+      "url": "https://fr.wikipedia.org/wiki/Minitel",
+      "kind": "history",
+      "language": "fr",
+      "note": "Development history, service ecosystem, technical generations, the 2012 shutdown, bibliography."
+    },
+    {
+      "id": "telematique-histoire",
+      "title": "Histoire détaillée de la Télématique",
+      "url": "https://telecommunications.monsite-orange.fr/page-5a854449a7560.html",
+      "kind": "history",
+      "language": "fr",
+      "note": "A thorough, detailed history of French telematics."
+    },
+    {
+      "id": "lemonde-fin",
+      "title": "Le Monde — La fin du Minitel programmée en 2012",
+      "url": "https://www.lemonde.fr/technologies/article/2011/07/21/la-fin-du-minitel-programmee-en-2012_1551152_651865.html",
+      "kind": "article",
+      "language": "fr",
+      "note": "Press coverage of the planned shutdown."
+    },
+    {
+      "id": "retrocampus",
+      "title": "Retrocampus BBS — Francesco Sblendorio",
+      "url": "https://bbs.retrocampus.com",
+      "kind": "community",
+      "language": "en",
+      "note": "One of the most active, generous corners of the living Minitel world. Free to access."
+    },
+    {
+      "id": "minipavi",
+      "title": "MiniPavi — gateway & directory",
+      "url": "https://www.minipavi.fr",
+      "kind": "community",
+      "language": "fr",
+      "note": "Gateway to hundreds of services; its in-terminal Guide is the authoritative live directory."
+    },
+    {
+      "id": "bridge-origin",
+      "title": "pR-0000 — Minitel RS232/USB Telnet Interface",
+      "url": "https://github.com/pR-0000/Minitel-RS232-USB-Telnet-Interface",
+      "kind": "tool",
+      "language": "en",
+      "note": "The community bridge that first got this terminal online, and the direct inspiration for Workbench's bridge. Credit and thanks."
+    }
+  ]
+}

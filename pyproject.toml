@@ -42,7 +42,7 @@ Issues = "https://github.com/minitel-workbench/minitel-workbench/issues"
 where = ["src"]
 
 [tool.setuptools.package-data]
-minitel_workbench = ["services/directory.json"]
+minitel_workbench = ["services/directory.json", "resources/resources.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

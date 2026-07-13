@@ -269,6 +269,37 @@ def cmd_status(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_resources(args: argparse.Namespace) -> int:
+    from .resources import get_resource, load_resources
+
+    if args.open:
+        res = get_resource(args.open)
+        if res is None:
+            print(f"Unknown resource: {args.open!r}")
+            return 2
+        import webbrowser
+
+        print(f"Opening {res.title} → {res.url}")
+        webbrowser.open(res.url)
+        return 0
+
+    print("Explore Minitel history and preservation:\n")
+    last_kind = None
+    for res in load_resources():
+        if res.kind != last_kind:
+            print(f"  [{res.kind}]")
+            last_kind = res.kind
+        print(f"    {res.title}")
+        print(f"      {res.url}")
+        if res.note:
+            print(f"      {res.note}")
+        if args.advanced:
+            print(f"      id={res.id}")
+        print()
+    print("Open one in your browser:  minitel resources --open <id>   (add --advanced for ids)")
+    return 0
+
+
 def _load_stream(path: str, direction: str) -> bytes:
     """Bytes from a raw ``.vdt`` dump, or one direction of a ``.mtr`` recording."""
     if path.endswith(".mtr"):
@@ -328,6 +359,10 @@ def build_parser() -> argparse.ArgumentParser:
     p_status.add_argument("--timeout", type=float, default=5.0, help="probe timeout (seconds)")
     p_status.set_defaults(func=cmd_status)
 
+    p_resources = sub.add_parser("resources", help="museums, history, and community links")
+    p_resources.add_argument("--open", metavar="ID", help="open a resource in your browser")
+    p_resources.set_defaults(func=cmd_resources)
+
     p_view = sub.add_parser("view", help="render a .vdt page or .mtr recording")
     p_view.add_argument("file", help="a .vdt Videotex dump or a .mtr recording")
     p_view.add_argument("--html", metavar="PATH", help="write a colour HTML screenshot instead")
@@ -360,6 +395,7 @@ def main(argv: list[str] | None = None) -> int:
         print("  minitel list      what you can connect to")
         print("  minitel demo      try it now, no hardware needed")
         print("  minitel status    see which services are online")
+        print("  minitel resources museums, history, community links")
         print("  minitel call <service>     reach it by telephone")
         print("  minitel connect <service>  connect a cabled Minitel\n")
         return 0

@@ -5,6 +5,13 @@ All notable changes to this project are documented here. Format loosely follows
 
 ## [Unreleased]
 
+### Added — Museum & Resources + credits (0.10)
+- `minitel resources` — curated external links (Musée du Minitel, Alcatel museum,
+  Wikipedia, Le Monde, telematics history) plus community/tool credits, grouped
+  and community-first. `--open <id>` opens one in the browser.
+- `CREDITS.md` acknowledging Retrocampus/Francesco, MiniPavi, pR-0000's bridge,
+  the adapter makers, and the museums — per the "link out and credit" rules.
+
 ### Added — protocol inspector + .vdt viewer (0.9/0.11)
 - `videotex/protocol.py`: annotates a Videotex byte stream as human events
   ("cursor → row 8 col 19", "foreground red", "KEY ENVOI", grouped text runs) —
