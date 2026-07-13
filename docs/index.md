@@ -2,11 +2,10 @@
 
 *An open-source toolkit for preserving and extending the Minitel ecosystem.*
 
-Everything a Minitel owner needs in one place — whether they connect by
-telephone, by a USB cable, or don't own a terminal yet. A live service directory,
-documentation, a fully offline demo, session recording, a Mac-side mirror of the
-display, and a rock-solid direct bridge to modern services like Retrocampus and
-MiniPavi.
+A toolkit for Minitel owners, whether they connect by telephone, by USB cable, or
+don't own a terminal yet. It provides a service directory, documentation, an
+offline demo, session recording, a Mac-side mirror of the display, and a direct
+bridge to services such as Retrocampus and MiniPavi.
 
 - **New here?** → [Getting started](guides/getting-started.md)
 - **Using a terminal?** → [Keyboard guide](guides/keyboard.md)
@@ -15,5 +14,4 @@ MiniPavi.
   [Architecture](../ARCHITECTURE.md)
 
 This project grew out of a debugging session that got a 1984 Minitel back onto
-today's Internet. The full design conversation is preserved in
-`docs/design/design-notebook.md`.
+today's Internet; see `docs/design/design-notebook.md`.

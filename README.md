@@ -12,26 +12,23 @@
 
 ---
 
-Minitel Workbench is everything a Minitel owner needs in one place — **whether
-they connect by telephone or by a USB cable, or don't own a terminal yet.** It's
-the front door to the surviving Minitel community: a live service directory,
-documentation, a fully offline demo, session recording, a Mac-side mirror of
-what the terminal shows, and (for owners with a USB adapter) a rock-solid direct
-bridge to modern Minitel services like **Retrocampus** and **MiniPavi**.
+Minitel Workbench is a toolkit for Minitel owners, whether they connect by
+telephone or by USB cable, or don't own a terminal yet. It provides a service
+directory, documentation, an offline demo, session recording, a Mac-side mirror
+of what the terminal shows, and — for owners with a USB adapter — a direct bridge
+to Minitel services such as Retrocampus and MiniPavi.
 
 It began as a debugging session that got a 1984 Radiotechnique Minitel back onto
-today's Internet, and turned into a design for the toolkit the community never
-quite had. See [`docs/design/design-notebook.md`](docs/design/design-notebook.md).
+today's Internet. See [`docs/design/design-notebook.md`](docs/design/design-notebook.md).
 
 ## Why it exists
 
-Most living Minitels still dial in by telephone; only a handful have the USB
-adapter. Existing tools optimize for the rare case. Workbench flips that: it is
-**fully useful with no cable**, and the USB adapter simply *unlocks* extra tools
-(live mirror, recording, diagnostics, benchmark). Nothing is labelled
-"recommended," nothing lectures you about old hardware, and the interface talks
-about *services*, not sockets. Those aren't accidents — they're
-[the Constitution](CONSTITUTION.md).
+Most working Minitels still dial in by telephone; only a few have the USB
+adapter. Existing tools tend to assume the adapter. Workbench does not: it is
+usable with no cable, and the adapter adds further tools (live mirror, recording,
+diagnostics, benchmark). The design rules it follows — no "recommended" labels,
+no lecturing about old hardware, an interface that talks about services rather
+than sockets — are set out in [the Constitution](CONSTITUTION.md).
 
 ## Quick start
 
@@ -68,31 +65,31 @@ Full walkthrough: [`docs/guides/getting-started.md`](docs/guides/getting-started
 
 | Service | What it is | Access |
 |---------|------------|--------|
-| ⭐ **Retrocampus** | Modern BBS by Francesco Sblendorio — forums, files, games, AI (Mistral, ChatGPT for Patreon supporters). Free to access. | WebSocket · telephone |
-| ⭐ **MiniPavi** | Gateway/directory to hundreds of Minitel services. | Telnet `go.minipavi.fr:516` · telephone |
-| ⭐ **Local Demo** | Offline demo service. Proves keyboard, display, and rendering with no hardware or network. | in-process |
+| **Retrocampus** | BBS by Francesco Sblendorio — forums, files, games, AI (Mistral, ChatGPT for Patreon supporters). Free to access. | WebSocket · telephone |
+| **MiniPavi** | Gateway/directory to hundreds of Minitel services. | Telnet `go.minipavi.fr:516` · telephone |
+| **Local Demo** | Offline demo service. Exercises keyboard, display, and rendering with no hardware or network. | in-process |
 
-The directory is data ([`src/minitel_workbench/services/directory.json`](src/minitel_workbench/services/directory.json)) —
-adding a service is a one-line contribution, not a release.
+The directory is data ([`src/minitel_workbench/services/directory.json`](src/minitel_workbench/services/directory.json)),
+so adding a service is a one-line contribution rather than a release.
 
 ## Status
 
-**Verified against a physical Minitel** (a 1984 Radiotechnique NFZ 300): the
-bridge connected to MiniPavi over the USB serial link, drew pages cleanly, and
-navigated by keyboard. Real MiniPavi output also drove the decoder to handle
-Videotex **REP** run-length fills and Minitel **PRO** protocol sequences.
+Tested against a physical Minitel (a 1984 Radiotechnique NFZ 300): the bridge
+connected to MiniPavi over the USB serial link, drew pages, and navigated by
+keyboard. Real MiniPavi output also drove the decoder's handling of Videotex REP
+run-length fills and Minitel PRO protocol sequences.
 
 Working today: direct serial↔TCP bridge with Telnet filtering, WebSocket
-transport, **auto-reconnect** on idle drop, offline demo, auto-detect, persistent
-config, service directory, bidirectional recording, a **CEPT level-2 colour
-mirror** (ANSI + HTML), a **telephone dialing assistant** and **service status
-monitor**, a **protocol inspector** and **`.vdt`/recording viewer**, and a curated
-**resources/museum** directory with credits.
+transport, auto-reconnect on idle drop, offline demo, auto-detect, persistent
+config, service directory, bidirectional recording, a CEPT level-2 colour mirror
+(ANSI + HTML), a telephone dialing assistant and service status monitor, a
+protocol inspector and `.vdt`/recording viewer, and a resources/museum directory
+with credits.
 
-Also: a **benchmark** for the serial link, a **local microserver** that serves
-your own pages to the terminal, a Videotex **page builder**, and a one-line
-**`clear`** for a garbled screen. (AI is deliberately *a service you connect to* —
-e.g. Retrocampus — not something Workbench calls with a key; see the Constitution.)
+Also: a benchmark for the serial link, a local microserver that serves your own
+pages to the terminal, a Videotex page builder, and a `clear` command for a
+garbled screen. AI is treated as a service you connect to (e.g. Retrocampus)
+rather than something Workbench calls with an API key; see the Constitution.
 
 CLI surface: `list · scan · doctor · demo · clear · status · resources · call ·
 view · inspect · serve · benchmark · connect`.
@@ -102,10 +99,8 @@ GUI monitor, and a packaged `.app`.
 
 ## Contributing
 
-This is a **community project**, not one person's. Read the
-[Constitution](CONSTITUTION.md) and [Contributing guide](CONTRIBUTING.md). The
-Minitel community — Retrocampus, MiniPavi, the Musée du Minitel, the people who
-make the adapters — are exactly who this is for.
+Contributions are welcome. Read the [Constitution](CONSTITUTION.md) and the
+[Contributing guide](CONTRIBUTING.md) first.
 
 ## License
 
