@@ -99,6 +99,11 @@ class Decoder:
                 row = (buf[i + 1] & 0x7F) - 0x41
                 col = (buf[i + 2] & 0x7F) - 0x41
                 self.screen.move_to(row, col)
+                # Direct cursor positioning resets to the text set (G0) and
+                # default attributes — the Videotex rule. Without this, text
+                # after a mosaic logo (e.g. MiniPavi) renders as semigraphics.
+                self._graphic = False
+                self.screen.reset_pen()
                 i += 3
                 continue
 
