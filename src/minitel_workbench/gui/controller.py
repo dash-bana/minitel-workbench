@@ -88,21 +88,32 @@ class WorkbenchController:
 
     def _open(self, svc, *, local_echo: bool):
         if svc.transport_kind == "demo":
-            from ..hardware.link import LoopbackLink
             from ..transport.local_demo import LocalDemoTransport
 
-            return LoopbackLink(), LocalDemoTransport()
+            # A demo with a terminal attached belongs *on the terminal*. Only
+            # fall back to the in-process stand-in when there is no cable —
+            # which is what makes the demo work for people who have no Minitel.
+            return self._open_link(local_echo=local_echo, required=False), LocalDemoTransport()
 
+        from ..transport import build_transport
+
+        link = self._open_link(local_echo=local_echo, required=True)
+        return link, build_transport(svc.access, name=svc.name)
+
+    def _open_link(self, *, local_echo: bool, required: bool):
+        """The Minitel end of the bridge: the real cable if one is there."""
         from ..hardware.capability import profile_for_model
         from ..hardware.detect import best_adapter
-        from ..hardware.link import SerialLink
-        from ..transport import build_transport
+        from ..hardware.link import LoopbackLink, SerialLink
 
         adapter = best_adapter()
         if adapter is None:
-            raise RuntimeError(
-                "No Minitel connection found — connect the cable, or try Local Demo."
-            )
+            if required:
+                raise RuntimeError(
+                    "No Minitel connection found — connect the cable, or try Local Demo."
+                )
+            return LoopbackLink()
+
         link = SerialLink.open(adapter.device, profile_for_model(None))
         if not local_echo:
             link.write(C.LOCAL_ECHO_OFF)
@@ -110,8 +121,7 @@ class WorkbenchController:
             for _ in range(50):
                 if not link.read(256):
                     break
-        transport = build_transport(svc.access, name=svc.name)
-        return link, transport
+        return link
 
     def disconnect(self) -> None:
         if self._bridge is not None:
