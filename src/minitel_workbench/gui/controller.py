@@ -18,6 +18,18 @@ from ..services import load_directory
 from ..videotex import constants as C
 from ..videotex.decoder import Decoder
 
+#: The Minitel function-key row, in the order it appears on the terminal.
+FUNCTION_KEYS: tuple[tuple[str, C.Key], ...] = (
+    ("Sommaire", C.Key.SOMMAIRE),
+    ("Annulation", C.Key.ANNULATION),
+    ("Retour", C.Key.RETOUR),
+    ("Répétition", C.Key.REPETITION),
+    ("Guide", C.Key.GUIDE),
+    ("Correction", C.Key.CORRECTION),
+    ("Suite", C.Key.SUITE),
+    ("Envoi", C.Key.ENVOI),
+)
+
 
 class WorkbenchController:
     def __init__(self) -> None:
@@ -114,6 +126,33 @@ class WorkbenchController:
     def _fail(self, msg: str) -> None:
         self.state = "error"
         self.message = msg
+
+    # -- keyboard ----------------------------------------------------------
+    def send_key(self, data: bytes) -> bool:
+        """Send keystrokes to the service, as if typed on the Minitel keyboard.
+
+        With the Local Demo the link is a ``LoopbackLink``, so the bytes are fed
+        in at the keyboard end and travel the real path (link -> bridge ->
+        service), which keeps any recorder tap honest. With a terminal on the
+        serial line there is no way to inject into its output, so the bytes go
+        straight to the service — the same bytes it would have received had they
+        been typed on the Minitel itself.
+        """
+        if not data or self._bridge is None or self._bridge.closed:
+            return False
+        feed_key = getattr(self._bridge.link, "feed_key", None)
+        target = feed_key if callable(feed_key) else self._bridge.transport.write
+        try:
+            target(data)
+        except Exception:  # noqa: BLE001 - a dead link must not kill the UI
+            return False
+        return True
+
+    def send_text(self, text: str) -> bool:
+        return self.send_key(text.encode("ascii", "ignore"))
+
+    def send_function_key(self, key: C.Key) -> bool:
+        return self.send_key(C.function_key_sequence(key))
 
     # -- the mirror --------------------------------------------------------
     def screen_lines(self) -> list[str]:

@@ -7,6 +7,7 @@ the window will run — only the Tk rendering is left unverified here.
 import time
 
 from minitel_workbench.gui.controller import WorkbenchController
+from minitel_workbench.videotex import constants as C
 
 
 def _wait(cond, timeout=4.0) -> bool:
@@ -66,3 +67,44 @@ def test_unknown_service_sets_error():
     c = WorkbenchController()
     assert c.connect("nope") is False
     assert c.state == "error"
+
+
+def _title(c: WorkbenchController) -> str:
+    """The demo prints each page's name on the top line — that is how we know
+    which page we are on. (The menu lists every page name, so matching against
+    the whole screen would pass even if nothing had happened.)"""
+    return c.screen_lines()[0].strip()
+
+
+def test_keys_navigate_the_demo():
+    """Typing a code and pressing Envoi opens a page; Sommaire returns home."""
+    c = WorkbenchController()
+    assert c.connect("demo") is True
+    assert _wait(lambda: _title(c) == "MINITEL WORKBENCH")
+
+    c.send_text("3")
+    c.send_function_key(C.Key.ENVOI)
+    assert _wait(lambda: _title(c) == "A PROPOS")
+
+    c.send_function_key(C.Key.SOMMAIRE)
+    assert _wait(lambda: _title(c) == "MINITEL WORKBENCH")
+    c.disconnect()
+
+
+def test_correction_rubs_out_a_typed_digit():
+    c = WorkbenchController()
+    assert c.connect("demo") is True
+    assert _wait(lambda: _title(c) == "MINITEL WORKBENCH")
+
+    c.send_text("9")  # wrong code…
+    c.send_function_key(C.Key.CORRECTION)  # …rubbed out
+    c.send_text("2")
+    c.send_function_key(C.Key.ENVOI)
+    assert _wait(lambda: _title(c) == "DEMO SEMIGRAPHIQUE")
+    c.disconnect()
+
+
+def test_keys_are_ignored_when_not_connected():
+    c = WorkbenchController()
+    assert c.send_text("1") is False
+    assert c.send_function_key(C.Key.ENVOI) is False

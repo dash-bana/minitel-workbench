@@ -17,10 +17,24 @@ import webbrowser
 from tkinter import ttk
 
 from ..monitor.canvas_render import cell_draw_ops
-from .controller import WorkbenchController
+from ..videotex import constants as C
+from .controller import FUNCTION_KEYS, WorkbenchController
 
 _CELL_W = 15
 _CELL_H = 22
+
+#: Mac keys that stand in for the Minitel function keys they most resemble.
+_KEYSYM_TO_FUNCTION = {
+    "Return": C.Key.ENVOI,
+    "KP_Enter": C.Key.ENVOI,
+    "BackSpace": C.Key.CORRECTION,
+    "Escape": C.Key.ANNULATION,
+    "Home": C.Key.SOMMAIRE,
+    "Prior": C.Key.RETOUR,  # page up
+    "Next": C.Key.SUITE,  # page down
+    "Help": C.Key.GUIDE,
+    "F1": C.Key.GUIDE,
+}
 
 
 class WorkbenchApp:
@@ -30,6 +44,7 @@ class WorkbenchApp:
         self.root.title("Minitel Workbench")
         self._busy = False
         self._last_ops: list[tuple] | None = None
+        self._widgets_connected = False
         self._build()
         self._poll()
 
@@ -47,23 +62,28 @@ class WorkbenchApp:
         row.pack(fill="x", padx=8, pady=8)
         for svc in self.c.featured():
             ttk.Button(
-                row, text=svc.name, width=15, command=lambda s=svc.id: self._connect(s)
+                row,
+                text=svc.name,
+                width=15,
+                takefocus=False,
+                command=lambda s=svc.id: self._connect(s),
             ).pack(side="left", padx=4, expand=True, fill="x")
 
         tools = ttk.Frame(self.root)
         tools.pack(fill="x", padx=16, pady=(0, 8))
         self.disconnect_btn = ttk.Button(
-            tools, text="Disconnect", command=self._disconnect, state="disabled"
+            tools, text="Disconnect", takefocus=False, command=self._disconnect, state="disabled"
         )
         self.disconnect_btn.pack(side="left", padx=3)
-        ttk.Button(tools, text="Set up cable", command=self._setup).pack(side="left", padx=3)
-        ttk.Button(tools, text="Clear screen", command=self._clear).pack(side="left", padx=3)
-        ttk.Button(tools, text="Telephone", command=self._telephone).pack(side="left", padx=3)
-        ttk.Button(tools, text="Link info", command=self._link_info).pack(side="left", padx=3)
-        ttk.Button(tools, text="What's online", command=self._status_check).pack(
-            side="left", padx=3
-        )
-        ttk.Button(tools, text="Resources", command=self._resources).pack(side="left", padx=3)
+        for label, action in (
+            ("Set up cable", self._setup),
+            ("Clear screen", self._clear),
+            ("Telephone", self._telephone),
+            ("Link info", self._link_info),
+            ("What's online", self._status_check),
+            ("Resources", self._resources),
+        ):
+            ttk.Button(tools, text=label, takefocus=False, command=action).pack(side="left", padx=3)
 
         ttk.Label(self.root, text="Minitel screen (live)").pack(anchor="w", padx=16)
         self.canvas = tk.Canvas(
@@ -76,8 +96,31 @@ class WorkbenchApp:
         )
         self.canvas.pack(padx=16, pady=(2, 6))
 
+        keys = ttk.LabelFrame(self.root, text="Minitel keys — or just type on the screen")
+        keys.pack(fill="x", padx=16, pady=(0, 6))
+        krow = ttk.Frame(keys)
+        krow.pack(fill="x", padx=8, pady=8)
+        self.key_buttons = [
+            ttk.Button(
+                krow,
+                text=label,
+                width=11,
+                takefocus=False,
+                state="disabled",
+                command=lambda k=key: self._send_function(k),
+            )
+            for label, key in FUNCTION_KEYS
+        ]
+        for btn in self.key_buttons:
+            btn.pack(side="left", padx=2, expand=True, fill="x")
+
         self.message = ttk.Label(self.root, text="Leave the Minitel on and showing F.")
         self.message.pack(anchor="w", padx=16, pady=(0, 12))
+
+        # Typing anywhere in the window goes to the service, so there is nothing
+        # to click into first. Buttons take no focus, so Return/space can't be
+        # swallowed by whichever one was pressed last.
+        self.root.bind("<Key>", self._on_key)
 
     # -- actions -----------------------------------------------------------
     def _connect(self, service_id: str) -> None:
@@ -95,11 +138,11 @@ class WorkbenchApp:
     def _after_connect(self) -> None:
         self._busy = False
         self.message.config(text=self.c.message)
-        self.disconnect_btn.config(state="normal" if self.c.is_connected() else "disabled")
+        self._set_connected_widgets(self.c.is_connected())
 
     def _disconnect(self) -> None:
         self.c.disconnect()
-        self.disconnect_btn.config(state="disabled")
+        self._set_connected_widgets(False)
         self.message.config(text="Disconnected.")
 
     def _setup(self) -> None:
@@ -147,6 +190,22 @@ class WorkbenchApp:
                 fill="x", padx=12, pady=2
             )
 
+    # -- keyboard ----------------------------------------------------------
+    def _on_key(self, event: tk.Event) -> None:
+        if not self.c.is_connected():
+            return
+        key = _KEYSYM_TO_FUNCTION.get(event.keysym)
+        if key is not None:
+            self._send_function(key)
+            return
+        char = event.char
+        if len(char) == 1 and " " <= char <= "~":  # printable ASCII only
+            self.c.send_text(char)
+
+    def _send_function(self, key: C.Key) -> None:
+        if self.c.send_function_key(key):
+            self.message.config(text=f"Sent {key.name.title()}.")
+
     def _show_text(self, title: str, text: str) -> None:
         win = tk.Toplevel(self.root)
         win.title(title)
@@ -175,10 +234,18 @@ class WorkbenchApp:
     def _poll(self) -> None:
         self.status.config(text=self.c.status_line())
         self._render()
-        want = "normal" if self.c.is_connected() else "disabled"
-        if str(self.disconnect_btn["state"]) != want:
-            self.disconnect_btn.config(state=want)
+        self._set_connected_widgets(self.c.is_connected())
         self.root.after(300, self._poll)
+
+    def _set_connected_widgets(self, connected: bool) -> None:
+        """Enable Disconnect and the key row exactly when a session is live."""
+        if connected == self._widgets_connected:
+            return  # no needless reconfiguration
+        self._widgets_connected = connected
+        state = "normal" if connected else "disabled"
+        self.disconnect_btn.config(state=state)
+        for btn in self.key_buttons:
+            btn.config(state=state)
 
     def run(self) -> None:
         try:
