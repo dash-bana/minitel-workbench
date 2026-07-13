@@ -85,3 +85,50 @@ def control_name(byte: int) -> str | None:
 def function_key_sequence(key: Key) -> bytes:
     """The two bytes a Minitel sends for a function key (``SEP`` + code)."""
     return bytes((SEP, int(key)))
+
+
+# --- CEPT / Teletel colour + attribute set (C1, introduced by ESC) ---------
+#
+# Colour index order matches ANSI (0 black … 7 white), which makes ANSI SGR
+# rendering a direct offset. Attributes below are the codes that follow ESC
+# (0x1B) in the Minitel alphanumeric/graphic sets.
+
+COLOURS = (
+    "black",
+    "red",
+    "green",
+    "yellow",
+    "blue",
+    "magenta",
+    "cyan",
+    "white",
+)
+
+# ESC <code> ranges/values:
+ATTR_FG_BASE = 0x40  # 0x40..0x47 -> foreground colour 0..7
+ATTR_BG_BASE = 0x50  # 0x50..0x57 -> background colour 0..7
+ATTR_BLINK_ON = 0x48
+ATTR_BLINK_OFF = 0x49
+ATTR_SIZE_NORMAL = 0x4C
+ATTR_SIZE_DOUBLE_HEIGHT = 0x4D
+ATTR_SIZE_DOUBLE_WIDTH = 0x4E
+ATTR_SIZE_DOUBLE = 0x4F
+ATTR_CONCEAL_ON = 0x58
+ATTR_UNDERLINE_OFF = 0x59  # end lining / underline
+ATTR_UNDERLINE_ON = 0x5A  # start lining / underline
+ATTR_INVERSE_OFF = 0x5C  # background normal
+ATTR_INVERSE_ON = 0x5D  # inverted background/foreground
+ATTR_CONCEAL_OFF = 0x5F
+
+
+def esc(code: int) -> bytes:
+    """An attribute sequence: ESC + ``code``."""
+    return bytes((ESC, code))
+
+
+def set_foreground(colour: int) -> bytes:
+    return esc(ATTR_FG_BASE + (colour & 0x07))
+
+
+def set_background(colour: int) -> bytes:
+    return esc(ATTR_BG_BASE + (colour & 0x07))

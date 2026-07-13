@@ -5,6 +5,17 @@ All notable changes to this project are documented here. Format loosely follows
 
 ## [Unreleased]
 
+### Added — CEPT level-2 renderer (0.7)
+- Per-cell attribute grid on the `Screen` (colour, blink, inverse, underline,
+  conceal, double-width/height, mosaic) — strictly additive, so monochrome
+  terminals render exactly as before.
+- Decoder now interprets the Teletel attribute escapes (ESC + code) onto a pen.
+- ANSI terminal rendering (`to_ansi`, `framed(color=True)`) and a self-contained
+  HTML export (`to_html`) for colour-accurate screenshots — both dependency-free.
+- Offline demo gained a COLOURS page exercising the attribute set.
+- Known follow-ups (need a live terminal): DRCS (L3) and serial/spacing attribute
+  semantics.
+
 ### Added — project bootstrap (0.1 → 0.6)
 - Project constitution, architecture, roadmap, contributor guide, license (MIT).
 - `minitel_workbench` package with a zero-third-party-dependency core.

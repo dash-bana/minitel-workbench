@@ -11,7 +11,7 @@ marketing. Status reflects what is actually in the tree.
 | 0.4 | Session recording (bidirectional, timestamped) | ✅ done |
 | 0.5 | Mac mirror — text/semigraphics (capability L1) | ✅ done (L1) |
 | 0.6 | Tkinter GUI shell + first-run wizard | ✅ done (skeleton) |
-| 0.7 | **Full CEPT renderer** — color, mosaics, DRCS, double-height (L2/L3) | ⏳ planned |
+| 0.7 | **CEPT renderer** — colour/blink/inverse/underline/conceal/size + ANSI & HTML output (L2) | ✅ done (L2); DRCS + serial-attribute semantics pending |
 | 0.8 | Telephone assistant (dial guide, service status monitor) | ⏳ planned |
 | 0.9 | Studio — `.vdt` viewer/editor, PNG capture, AI page generation | ⏳ planned |
 | 0.10 | Museum & Resources (curated external links, model docs) | ⏳ planned |
@@ -19,9 +19,19 @@ marketing. Status reflects what is actually in the tree.
 | 0.12 | Benchmark suite (all speeds × framings, safe recovery to 1200 7E1) | ⏳ planned |
 | 1.0 | Polish, docs site, packaged `.app`, community launch | ⏳ planned |
 
+### CEPT status (0.7)
+
+Level 2 is implemented: the decoder interprets the Teletel colour/blink/inverse/
+underline/conceal/size attribute escapes onto a per-cell attribute grid, and the
+screen renders to ANSI (terminal mirror) and self-contained HTML (screenshots).
+Two known gaps remain, both requiring a live terminal to validate and so left as
+follow-ups: **DRCS** (downloadable character sets, L3) and **serial/spacing
+attribute semantics** (real Minitel colour attributes occupy a cell; we currently
+model them as non-spacing pen changes). Neither reduces older-terminal support.
+
 ## What "done" means here
 
-The 0.1–0.6 items above are implemented and covered by tests that run with **no
+The 0.1–0.7 items above are implemented and covered by tests that run with **no
 hardware and no network**. They have not yet been exercised against a physical
 Minitel on this machine (none is attached) — that is the one verification step
 that still needs a human with the terminal. See `docs/guides/getting-started.md`.

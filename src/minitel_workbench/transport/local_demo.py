@@ -38,6 +38,8 @@ def _home_page() -> bytes:
     out += b"2 . DEMO SEMIGRAPHIQUE"
     out += _pos(9, 4)
     out += b"3 . A PROPOS"
+    out += _pos(11, 4)
+    out += b"4 . COULEURS"
     out += _pos(20, 2)
     out += _mosaic_line(36)
     out += _pos(22, 2)
@@ -92,10 +94,33 @@ def _demo_page() -> bytes:
     return bytes(out)
 
 
+def _colour_page() -> bytes:
+    out = bytearray()
+    out.append(C.FF)
+    out += _pos(1, 12)
+    out += b"COULEURS"
+    row = 4
+    for index, name in enumerate(C.COLOURS):
+        if index == 0:
+            continue  # black on black is invisible; skip it
+        out += _pos(row, 6)
+        out += C.set_foreground(index)
+        out += name.upper().encode("ascii")
+        row += 1
+    out += _pos(row + 1, 6)
+    out += C.esc(C.ATTR_BLINK_ON) + b"CLIGNOTANT" + C.esc(C.ATTR_BLINK_OFF)
+    out += _pos(row + 2, 6)
+    out += C.esc(C.ATTR_INVERSE_ON) + b"INVERSE" + C.esc(C.ATTR_INVERSE_OFF)
+    out += _pos(22, 2)
+    out += b"SOMMAIRE pour revenir."
+    return bytes(out)
+
+
 _PAGES = {
     "1": _info_page,
     "2": _demo_page,
     "3": _about_page,
+    "4": _colour_page,
 }
 
 

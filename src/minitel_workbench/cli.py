@@ -140,11 +140,12 @@ def cmd_demo(args: argparse.Namespace) -> int:
     transport = LocalDemoTransport()
     decoder = Decoder()
     bridge = Bridge(link, transport, monitor=decoder)
+    color = sys.stdout.isatty()
 
     print("Offline demo — no Minitel and no network needed.")
-    print("Type a code (1, 2, 3), then Enter. 's' = home menu, 'q' = quit.\n")
+    print("Type a code (1-4), then Enter. 's' = home menu, 'q' = quit.\n")
     _drain(bridge)
-    print(decoder.screen.framed())
+    print(decoder.screen.framed(color=color))
 
     try:
         while True:
@@ -160,7 +161,7 @@ def cmd_demo(args: argparse.Namespace) -> int:
                 link.feed_key(line.encode("ascii", "ignore"))
                 link.feed_key(C.function_key_sequence(C.Key.ENVOI))
             _drain(bridge)
-            print(decoder.screen.framed())
+            print(decoder.screen.framed(color=color))
     finally:
         bridge.close()
     print("\nBye.")

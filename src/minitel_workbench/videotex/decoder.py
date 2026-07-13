@@ -103,7 +103,7 @@ class Decoder:
             if b == C.ESC:
                 if i + 1 >= n:
                     break
-                # L1: consume the single attribute byte and ignore it.
+                self._apply_attribute(buf[i + 1] & 0x7F)
                 i += 2
                 continue
 
@@ -128,10 +128,12 @@ class Decoder:
             # --- single-byte controls ------------------------------------
             if b == C.SO:
                 self._graphic = True
+                self.screen.set_pen(mosaic=True)
                 i += 1
                 continue
             if b == C.SI:
                 self._graphic = False
+                self.screen.set_pen(mosaic=False)
                 i += 1
                 continue
             if b == C.FF:
@@ -186,6 +188,45 @@ class Decoder:
 
         # Keep the unconsumed tail (an incomplete multi-byte sequence).
         del self._buf[:i]
+
+    def _apply_attribute(self, code: int) -> None:
+        """Interpret a Teletel attribute (the byte after ESC) onto the pen.
+
+        These are treated as non-spacing here — they change the current pen and
+        apply to glyphs written afterwards. Real Minitel colour attributes are
+        *serial/spacing* (each occupies a cell); modelling that exactly needs a
+        live terminal to validate against and is tracked as a follow-up
+        (ROADMAP 0.7). Unknown codes are ignored.
+        """
+        s = self.screen
+        if C.ATTR_FG_BASE <= code <= C.ATTR_FG_BASE + 7:
+            s.set_pen(fg=code - C.ATTR_FG_BASE)
+        elif C.ATTR_BG_BASE <= code <= C.ATTR_BG_BASE + 7:
+            s.set_pen(bg=code - C.ATTR_BG_BASE)
+        elif code == C.ATTR_BLINK_ON:
+            s.set_pen(blink=True)
+        elif code == C.ATTR_BLINK_OFF:
+            s.set_pen(blink=False)
+        elif code == C.ATTR_SIZE_NORMAL:
+            s.set_pen(double_width=False, double_height=False)
+        elif code == C.ATTR_SIZE_DOUBLE_HEIGHT:
+            s.set_pen(double_height=True)
+        elif code == C.ATTR_SIZE_DOUBLE_WIDTH:
+            s.set_pen(double_width=True)
+        elif code == C.ATTR_SIZE_DOUBLE:
+            s.set_pen(double_width=True, double_height=True)
+        elif code == C.ATTR_CONCEAL_ON:
+            s.set_pen(conceal=True)
+        elif code == C.ATTR_CONCEAL_OFF:
+            s.set_pen(conceal=False)
+        elif code == C.ATTR_UNDERLINE_ON:
+            s.set_pen(underline=True)
+        elif code == C.ATTR_UNDERLINE_OFF:
+            s.set_pen(underline=False)
+        elif code == C.ATTR_INVERSE_ON:
+            s.set_pen(inverse=True)
+        elif code == C.ATTR_INVERSE_OFF:
+            s.set_pen(inverse=False)
 
     @property
     def text(self) -> str:

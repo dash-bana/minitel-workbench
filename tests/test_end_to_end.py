@@ -65,6 +65,20 @@ def test_semigraphic_demo_page_draws_blocks():
         bridge.close()
 
 
+def test_colour_page_decodes_attributes():
+    link, bridge, decoder = make()
+    try:
+        drain(bridge)
+        link.feed_key(b"4")
+        link.feed_key(C.function_key_sequence(C.Key.ENVOI))
+        drain(bridge)
+        # The colour page prints "RED" in red at row 4 col 6 (internal 3,5).
+        assert decoder.screen.glyph(3, 5) == "R"
+        assert decoder.screen.attr(3, 5).fg == 1  # red
+    finally:
+        bridge.close()
+
+
 def test_typed_characters_are_echoed_by_service():
     link, bridge, decoder = make()
     try:
