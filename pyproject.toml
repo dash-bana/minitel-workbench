@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "minitel-workbench"
+version = "0.6.0"
+description = "An open-source toolkit for preserving and extending the Minitel ecosystem."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "The Minitel Workbench contributors" }]
+keywords = ["minitel", "videotex", "teletel", "cept", "retrocomputing", "serial"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Communications",
+    "Topic :: System :: Emulators",
+]
+# The core has ZERO required third-party dependencies (Constitution rule II).
+dependencies = []
+
+[project.optional-dependencies]
+serial = ["pyserial>=3.5"]
+ws = ["websocket-client>=1.6"]
+dev = ["pytest>=7", "ruff>=0.5", "black>=24"]
+
+[project.scripts]
+minitel = "minitel_workbench.cli:main"
+minitel-workbench = "minitel_workbench.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/minitel-workbench/minitel-workbench"
+Documentation = "https://github.com/minitel-workbench/minitel-workbench/tree/main/docs"
+Issues = "https://github.com/minitel-workbench/minitel-workbench/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+minitel_workbench = ["services/directory.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP", "B"]
+ignore = ["E501"]  # line length handled by black
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]

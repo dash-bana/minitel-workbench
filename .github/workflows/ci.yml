@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install (dev extras only — core needs no third-party deps)
+        run: python -m pip install -e ".[dev]"
+      - name: Lint
+        run: |
+          ruff check .
+          black --check .
+      - name: Test
+        run: pytest
+
+  core-imports-clean:
+    # Proves Constitution rule II: the core imports with ZERO third-party packages.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Import core with no dependencies installed
+        run: |
+          python -c "import sys; sys.path.insert(0, 'src'); import minitel_workbench; from minitel_workbench import cli, bridge, config; from minitel_workbench.services import load_directory; assert len(load_directory()) >= 3; print('core OK, version', minitel_workbench.__version__)"

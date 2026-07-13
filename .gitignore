@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# App runtime state (never commit a user's settings/recordings)
+*.vdt
+/recordings/
+site/
+
+# macOS
+.DS_Store
+
+# The original uploaded transcript lives in the repo as docs/design/design-notebook.md
+/Minitel Workbench.md
+
+# Editors
+.idea/
+.vscode/
+*.swp

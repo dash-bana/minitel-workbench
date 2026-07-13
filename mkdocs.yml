@@ -1,0 +1,12 @@
+site_name: Minitel Workbench
+site_description: An open-source toolkit for preserving and extending the Minitel ecosystem.
+theme:
+  name: readthedocs
+nav:
+  - Home: index.md
+  - Getting started: guides/getting-started.md
+  - Keyboard guide: guides/keyboard.md
+  - Services: guides/services.md
+  - Constitution: ../CONSTITUTION.md
+  - Architecture: ../ARCHITECTURE.md
+  - Roadmap: ../ROADMAP.md

@@ -1,0 +1,104 @@
+{
+  "schema": 1,
+  "updated": "2026-07-13",
+  "note": "Curated directory of living Minitel destinations. Community-refreshable: adding a service is one JSON object, not a release. Featured order and AI ordering follow CONSTITUTION.md (Retrocampus first; Mistral before ChatGPT).",
+  "services": [
+    {
+      "id": "retrocampus",
+      "name": "Retrocampus",
+      "featured": true,
+      "order": 1,
+      "description": "Modern BBS by Francesco Sblendorio: forums, files, games, chat, Videotex art. Free to access; AI for Patreon supporters.",
+      "operator": "Francesco Sblendorio",
+      "language": "en/it",
+      "tags": ["bbs", "community", "ai", "games", "files"],
+      "access": { "kind": "websocket", "url": "wss://bbs.retrocampus.com:8051" },
+      "alt_access": [
+        { "kind": "telephone", "number": "+39 0522 750051" },
+        { "kind": "web", "url": "https://bbs.retrocampus.com" }
+      ],
+      "ai_services": ["Mistral", "ChatGPT"],
+      "website": "https://bbs.retrocampus.com",
+      "status": "reported-online"
+    },
+    {
+      "id": "minipavi",
+      "name": "MiniPavi",
+      "featured": true,
+      "order": 2,
+      "description": "Gateway and directory to hundreds of Minitel services. The live in-terminal Guide is the authoritative list of current service codes.",
+      "language": "fr",
+      "tags": ["gateway", "directory", "weather", "news", "games"],
+      "access": { "kind": "telnet", "host": "go.minipavi.fr", "port": 516 },
+      "alt_access": [
+        { "kind": "websocket", "url": "ws://go.minipavi.fr:8182" },
+        { "kind": "websocket", "url": "wss://go.minipavi.fr:8181" },
+        { "kind": "telephone", "number": "09 72 10 17 21" }
+      ],
+      "website": "https://www.minipavi.fr",
+      "status": "reported-online"
+    },
+    {
+      "id": "demo",
+      "name": "Local Demo",
+      "featured": true,
+      "order": 3,
+      "description": "Offline demo service. Proves keyboard, display and rendering with no hardware and no network.",
+      "language": "fr",
+      "tags": ["offline", "test"],
+      "access": { "kind": "demo" },
+      "status": "always-online"
+    },
+    {
+      "id": "labbej27",
+      "name": "LABBEJ27",
+      "featured": false,
+      "order": 10,
+      "description": "Modern Minitel microserver supporting real terminals, telephone, browser emulation and WebSocket.",
+      "operator": "Jimmy Labbé",
+      "language": "fr",
+      "tags": ["microserver", "community"],
+      "access": { "kind": "websocket", "url": "wss://minitel.labbej.fr:8182" },
+      "alt_access": [{ "kind": "telephone", "number": "+33 2 46 83 05 93" }],
+      "website": "https://minitel.labbej.fr",
+      "status": "unverified"
+    },
+    {
+      "id": "hacker",
+      "name": "HACKER",
+      "featured": false,
+      "order": 11,
+      "description": "Revival of the HACKER microserver environment.",
+      "language": "fr",
+      "tags": ["microserver", "retro"],
+      "access": { "kind": "websocket", "url": "ws://mntl.joher.com:2018" },
+      "alt_access": [{ "kind": "web", "url": "https://www.3614hacker.fr" }],
+      "website": "https://www.3614hacker.fr",
+      "status": "unverified"
+    },
+    {
+      "id": "3615code",
+      "name": "3615co.de",
+      "featured": false,
+      "order": 12,
+      "description": "Independent modern Minitel service collection.",
+      "language": "fr",
+      "tags": ["microserver"],
+      "access": { "kind": "websocket", "url": "ws://3615co.de/ws" },
+      "website": "https://3615co.de",
+      "status": "unverified"
+    },
+    {
+      "id": "3611re",
+      "name": "3611.re",
+      "featured": false,
+      "order": 13,
+      "description": "Modern Minitel-style directory endpoint.",
+      "language": "fr",
+      "tags": ["directory"],
+      "access": { "kind": "websocket", "url": "ws://3611.re/ws" },
+      "website": "https://3611.re",
+      "status": "unverified"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+# Minitel Workbench has NO required third-party dependencies — the core and its
+# tests run on the Python standard library alone (Constitution rule II).
+#
+# The following are OPTIONAL and only needed to unlock specific features:
+#
+#   pyserial>=3.5          # talk to a real Minitel over a USB serial adapter
+#   websocket-client>=1.6  # connect to ws:// / wss:// services (e.g. Retrocampus)
+#
+# Install them via extras instead of this file:
+#   python -m pip install -e ".[serial,ws]"
