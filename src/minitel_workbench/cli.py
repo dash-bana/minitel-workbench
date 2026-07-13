@@ -550,6 +550,15 @@ def cmd_view(args: argparse.Namespace) -> int:
     from .videotex.decoder import Decoder
 
     data = _load_stream(args.file, "service->terminal")
+
+    if args.filmstrip:
+        from .monitor.filmstrip import build_filmstrip
+
+        with open(args.filmstrip, "w", encoding="utf-8") as fh:
+            fh.write(build_filmstrip(data, title=args.file))
+        print(f"Wrote {args.filmstrip} (every page the session displayed)")
+        return 0
+
     decoder = Decoder()
     decoder.feed(data)
     if args.html:
@@ -638,6 +647,11 @@ def build_parser() -> argparse.ArgumentParser:
     p_view = sub.add_parser("view", help="render a .vdt page or .mtr recording")
     p_view.add_argument("file", help="a .vdt Videotex dump or a .mtr recording")
     p_view.add_argument("--html", metavar="PATH", help="write a colour HTML screenshot instead")
+    p_view.add_argument(
+        "--filmstrip",
+        metavar="PATH",
+        help="write an HTML page showing every screen the session displayed",
+    )
     p_view.set_defaults(func=cmd_view)
 
     p_inspect = sub.add_parser("inspect", help="annotate the bytes of a page/recording")

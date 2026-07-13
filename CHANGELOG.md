@@ -5,6 +5,12 @@ All notable changes to this project are documented here. Format loosely follows
 
 ## [Unreleased]
 
+### Added — session filmstrip (from real use)
+- `minitel view <file> --filmstrip out.html` renders *every* page a session
+  displayed, not just the final screen. Found because `view` showed a recording's
+  idle screensaver instead of the weather page that had scrolled past.
+
+
 ### Added — AI page generation (0.9) + polish
 - `minitel ai "<prompt>"` generates a Videotex page: the model returns a JSON
   page spec, `build_page` encodes it (so output is always valid). Provider order
