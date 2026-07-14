@@ -52,3 +52,23 @@ def test_blank_black_screen_emits_no_rects():
     d.feed(bytes([C.FF]))
     ops = cell_draw_ops(d.screen, 10, 10)
     assert [o for o in ops if o[0] == "rect"] == []  # black bg is not painted
+
+
+def test_blinking_text_disappears_on_the_dark_phase():
+    """The Minitel blinks; the mirror must blink with it, or the two disagree."""
+    d = Decoder()
+    d.feed(bytes([C.FF]) + C.esc(C.ATTR_BLINK_ON) + b"X")
+
+    lit = cell_draw_ops(d.screen, 10, 10, blink_on=True)
+    dark = cell_draw_ops(d.screen, 10, 10, blink_on=False)
+
+    assert any(op[0] == "text" and op[3] == "X" for op in lit)
+    assert not any(op[0] == "text" for op in dark)
+
+
+def test_steady_text_is_unaffected_by_the_blink_phase():
+    d = Decoder()
+    d.feed(bytes([C.FF]) + b"X")
+    assert cell_draw_ops(d.screen, 10, 10, blink_on=True) == cell_draw_ops(
+        d.screen, 10, 10, blink_on=False
+    )

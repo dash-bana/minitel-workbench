@@ -12,6 +12,7 @@ Only imported when Tk is present (see ``gui/__init__.py``).
 from __future__ import annotations
 
 import threading
+import time
 import tkinter as tk
 import webbrowser
 from tkinter import ttk
@@ -234,7 +235,9 @@ class WorkbenchApp:
 
     # -- live update -------------------------------------------------------
     def _render(self) -> None:
-        ops = cell_draw_ops(self.c.screen(), _CELL_W, _CELL_H)
+        # Half-second phases: the terminal blinks, so the mirror blinks with it.
+        blink_on = int(time.monotonic() * 2) % 2 == 0
+        ops = cell_draw_ops(self.c.screen(), _CELL_W, _CELL_H, blink_on=blink_on)
         if ops == self._last_ops:
             return  # nothing changed — avoid needless redraw/flicker
         self._last_ops = ops
@@ -252,7 +255,10 @@ class WorkbenchApp:
         self.status.config(text=self.c.status_line())
         self._render()
         self._set_connected_widgets(self.c.is_connected())
-        self.root.after(300, self._poll)
+        # Faster than the eye needs for the mirror, but the blink phase turns
+        # every 500ms and a slower poll makes it stutter. Redraws are skipped
+        # when nothing changed, so this costs little.
+        self.root.after(200, self._poll)
 
     def _set_connected_widgets(self, connected: bool) -> None:
         """Enable Disconnect and the key row exactly when a session is live."""

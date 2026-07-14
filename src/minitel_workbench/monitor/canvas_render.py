@@ -27,10 +27,17 @@ _MOSAIC_CELLS = {
 }
 
 
-def cell_draw_ops(screen: Screen, cell_w: float, cell_h: float) -> list[tuple]:
+def cell_draw_ops(
+    screen: Screen, cell_w: float, cell_h: float, *, blink_on: bool = True
+) -> list[tuple]:
     """Draw ops for the whole screen at the given cell size.
 
     ``("rect", x0, y0, x1, y1, fill)`` and ``("text", cx, cy, char, fill)``.
+
+    ``blink_on`` is the phase of the blink cycle: on the dark half, cells with
+    the blink attribute draw their background only, exactly as the terminal
+    shows them. A caller that renders once (a test, a screenshot) can ignore it;
+    the live mirror flips it so the Mac blinks when the Minitel does.
     """
     ops: list[tuple] = []
     sub_w = cell_w / 2
@@ -45,7 +52,7 @@ def cell_draw_ops(screen: Screen, cell_w: float, cell_h: float) -> list[tuple]:
             if bg != "#000000":
                 ops.append(("rect", x0, y0, x0 + cell_w, y0 + cell_h, bg))
 
-            if attr.conceal:
+            if attr.conceal or (attr.blink and not blink_on):
                 continue
 
             fg = web_colour(attr.effective_fg)
