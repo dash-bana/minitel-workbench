@@ -49,7 +49,7 @@ def _home_page() -> bytes:
     out += _pos(15, 4)
     out += b"4 . COULEURS"
     out += _pos(17, 4)
-    out += C.esc(C.ATTR_INVERSE_ON) + b"5 . MIRE DE CONTROLE" + C.esc(C.ATTR_INVERSE_OFF)
+    out += b"5 . MIRE DE CONTROLE"
     out += _pos(18, 4)
     out += b"    (le test de reference)"
     out += _pos(20, 2)
