@@ -67,7 +67,7 @@ Full walkthrough: [`docs/guides/getting-started.md`](docs/guides/getting-started
 |---------|------------|--------|
 | **Retrocampus** | BBS by Francesco Sblendorio — forums, files, games, AI (Mistral, ChatGPT for Patreon supporters). Free to access. | WebSocket · telephone |
 | **MiniPavi** | Gateway/directory to hundreds of Minitel services. | Telnet `go.minipavi.fr:516` · telephone |
-| **Local Demo** | Pages served from inside Workbench — no network, no service. That makes it the answer to *"is it me, or is it them?"*: if the demo draws correctly on your Minitel, the fault is out on the network, not on your desk. Its **test card** (page 5) states on screen what each line should look like. | in-process |
+| **Local Demo** | Pages served from inside Workbench — no network, no service. That makes it the answer to *"is it me, or is it them?"*: if the demo draws correctly on your Minitel, the fault is out on the network, not on your desk. Its **display test** (page 5) states on screen what each line should look like. | in-process |
 
 The directory is data ([`src/minitel_workbench/services/directory.json`](src/minitel_workbench/services/directory.json)),
 so adding a service is a one-line contribution rather than a release.
@@ -76,13 +76,13 @@ so adding a service is a one-line contribution rather than a release.
 
 Tested against a physical Minitel (a 1984 Radiotechnique NFZ 300): the bridge
 connected to MiniPavi over the USB serial link, drew pages, and navigated from
-both the terminal's keyboard and the Mac's. The test card renders correctly on
+both the terminal's keyboard and the Mac's. The display test renders correctly on
 the CRT — accents, mosaics, REP run-length fills, inverse and blink — which
 exercises the decoder end to end. That terminal answers PRO3 commands but
 reports no ROM identity, which is normal for a first-generation Minitel 1.
 
 Working today: direct serial↔TCP bridge with Telnet filtering, WebSocket
-transport, auto-reconnect on idle drop, offline demo with a test card,
+transport, auto-reconnect on idle drop, offline demo with a display test,
 auto-detect, persistent config, service directory, bidirectional recording, a
 CEPT level-2 colour mirror (ANSI + HTML, blink included), a one-click setup
 report (cable, driver, line speed, terminal identity, services), a telephone

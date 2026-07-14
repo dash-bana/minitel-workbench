@@ -80,7 +80,7 @@ class WorkbenchController:
             # Answer "what is this for?" where the question gets asked.
             self.message = (
                 "Local Demo — no network: these pages come from Workbench itself. "
-                "Type 1 for why this exists, or 5 for the test card."
+                "Type 1 for why this exists, or 5 to test the display."
             )
         else:
             self.message = f"Connected to {svc.name} — type a code and press Envoi."

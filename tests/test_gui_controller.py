@@ -119,7 +119,7 @@ def test_test_card_is_reachable_and_states_its_expectations():
 
     c.send_text("5")
     c.send_function_key(C.Key.ENVOI)
-    assert _wait(lambda: _title(c) == "MIRE DE CONTROLE")
+    assert _wait(lambda: _title(c) == "TEST AFFICHAGE")
 
     screen = c.screen_text()
     for check in ("ACCENTS", "MOSAIQUE", "REPETITION", "INVERSE", "CLIGNOTANT"):

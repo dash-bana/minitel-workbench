@@ -171,14 +171,14 @@ class WorkbenchApp:
             font=("Helvetica", 15, "bold"),
         ).pack(pady=(14, 6))
         body = (
-            "Connect the Local Demo and open page 5, the test card.\n\n"
+            "Select Local Demo, then option 5 + Envoi.\n\n"
             "The demo's pages come from Workbench itself — no network, no service, "
             "nobody else to blame.\n\n"
-            "• If the test card draws correctly on your Minitel, everything from the "
-            "cable to the screen is proven. The fault is out on the network.\n\n"
-            "• If it draws wrong, the fault is here — and the card says what each line "
-            "should look like, so you can tell which part failed.\n\n"
-            "A photograph of a wrong test card is enough to report a bug."
+            "• If the display test draws correctly on your Minitel, everything from "
+            "the cable to the screen is proven. The fault is out on the network.\n\n"
+            "• If it draws wrong, the fault is here — and the page says what each "
+            "line should look like, so you can tell which part failed.\n\n"
+            "A photograph of a wrong result is enough to report a bug."
         )
         msg = tk.Message(win, text=body, width=500, justify="left")
         msg.pack(padx=18, anchor="w")

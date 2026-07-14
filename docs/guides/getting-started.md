@@ -44,11 +44,11 @@ most Minitels dial in by telephone.
 
 ## 4. When the screen looks wrong
 
-Connect the **Local Demo** and open **page 5, the test card**. The demo needs no
+Connect the **Local Demo** and open **page 5, TEST AFFICHAGE**. The demo needs no
 network and no service, so if it draws correctly, everything from your cable to
 the screen is proven and the fault is out on the network. If it draws wrong, the
-fault is local — and the card tells you which part is at fault, because it
-prints on the page what each line should look like.
+fault is local — and the page tells you which part is at fault, because it
+prints what each line should look like.
 
 This is the fastest way to answer "is it me, or is it them?" — see
 [When the screen looks wrong](diagnosing.md).

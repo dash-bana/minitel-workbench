@@ -68,12 +68,13 @@ Two lines are worth understanding:
   nothing at all, and that is normal, not a fault. Workbench will never guess a
   model it wasn't told.
 
-### 2. The test card — the demo's page 5
+### 2. The display test — the demo's page 5
 
-Connect to **Local Demo**, type `5`, press **Envoi**.
+Connect to **Local Demo**, type `5`, press **Envoi**. The page is titled
+**TEST AFFICHAGE**.
 
-This is a test card in the television sense: a page whose correct appearance is
-known, and *printed on the page itself*. Each line exercises one thing that
+It works like a television test card: a page whose correct appearance is known,
+and *printed on the page itself*. Each line exercises one thing that
 really breaks, and states what it must look like ("attendu: 20 tirets
 identiques"). You don't need to know Videotex to use it — you only need to
 compare what you see with what the page says you should see.
@@ -92,7 +93,7 @@ hardware.
 | **INVERSE / CLIGNOTANT** — no inverse video, no blink | Display attributes aren't arriving. On a monochrome set, colours appear as grey levels — that is correct, not a fault. |
 | **Nothing appears at all** | Not a rendering problem. Check the report card: cable, driver, and whether something else already has the serial port open (only one program can). |
 
-A photograph of a wrong test card is enough to report a bug — it says exactly
+A photograph of a wrong display test is enough to report a bug — it says exactly
 which stage of the chain failed, which a screenshot of a garbled service never
 could.
 

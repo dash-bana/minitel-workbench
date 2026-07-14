@@ -138,7 +138,7 @@ def cmd_selftest(args: argparse.Namespace) -> int:
 
     print(f"Minitel Workbench {__version__} — your setup\n")
     print(run().text())
-    print("\nSeeing a garbled screen? Connect the demo and open page 5, the test card.")
+    print("\nDisplay look off? Select Local Demo, then option 5 + Envoi.")
     return 0
 
 
@@ -156,7 +156,8 @@ def cmd_demo(args: argparse.Namespace) -> int:
     color = sys.stdout.isatty()
 
     print("Offline demo — no Minitel and no network needed.")
-    print("Type a code (1-4), then Enter. 's' = home menu, 'q' = quit.\n")
+    print("Type a code (1-5), then Enter. 's' = home menu, 'q' = quit.")
+    print("Code 5 tests the display — use it when a screen looks wrong.\n")
     _drain(bridge)
     print(decoder.screen.framed(color=color))
 

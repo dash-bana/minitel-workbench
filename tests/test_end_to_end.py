@@ -48,7 +48,7 @@ def test_navigate_to_info_and_back():
         text = decoder.screen.text
         assert "POURQUOI CE SERVICE" in text
         assert "reseau" in text  # body of the page
-        assert "MIRE" in text  # and it points at the test card
+        assert "page 5" in text  # and it points at the display test
 
         link.feed_key(C.function_key_sequence(C.Key.SOMMAIRE))
         drain(bridge)

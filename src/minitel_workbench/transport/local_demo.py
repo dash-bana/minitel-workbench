@@ -49,9 +49,7 @@ def _home_page() -> bytes:
     out += _pos(15, 4)
     out += b"4 . COULEURS"
     out += _pos(17, 4)
-    out += b"5 . MIRE DE CONTROLE"
-    out += _pos(18, 4)
-    out += b"    (le test de reference)"
+    out += b"5 . TEST AFFICHAGE"
     out += _pos(20, 2)
     out += _mosaic_line(36)
     out += _pos(22, 2)
@@ -85,7 +83,7 @@ def _info_page() -> bytes:
     out += _pos(11, 2)
     out += b"Si elles sont fausses, la panne est"
     out += _pos(12, 2)
-    out += b"ici. La page 5 (MIRE) vous dira ou."
+    out += b"ici. La page 5 vous dira ou."
     out += _pos(22, 2)
     out += b"SOMMAIRE pour revenir."
     return bytes(out)
@@ -161,7 +159,7 @@ def _test_card() -> bytes:
     out = bytearray()
     out.append(C.FF)
     out += _pos(1, 11)
-    out += b"MIRE DE CONTROLE"
+    out += b"TEST AFFICHAGE"
 
     # 1. Accents (G2). Wrong framing mangles these first.
     out += _pos(3, 2)
