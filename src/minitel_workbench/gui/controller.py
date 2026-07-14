@@ -127,6 +127,12 @@ class WorkbenchController:
         if self._bridge is not None:
             self._bridge.close()
             self._bridge = None
+        if self._thread is not None:
+            # Wait for the pump thread to notice. A thread still sitting in
+            # select() on descriptors we just closed can wake up on *reused*
+            # ones and read bytes meant for the next session.
+            self._thread.join(timeout=2.0)
+            self._thread = None
         if self.state == "connected":
             self.state = "idle"
 

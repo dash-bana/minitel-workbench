@@ -67,7 +67,8 @@ class Bridge:
     def _forward_from_terminal(self) -> bool:
         try:
             data = self.link.read()
-        except ChannelClosed:
+        except (ChannelClosed, OSError):
+            # OSError: the descriptor was closed under us mid-pump (EBADF).
             self.close()
             return False
         if data:
@@ -79,7 +80,7 @@ class Bridge:
     def _forward_from_service(self) -> bool:
         try:
             data = self.transport.read()
-        except ChannelClosed:
+        except (ChannelClosed, OSError):
             self.close()
             return False
         if data:
