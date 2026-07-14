@@ -40,6 +40,8 @@ def _home_page() -> bytes:
     out += b"3 . A PROPOS"
     out += _pos(11, 4)
     out += b"4 . COULEURS"
+    out += _pos(13, 4)
+    out += b"5 . MIRE DE CONTROLE"
     out += _pos(20, 2)
     out += _mosaic_line(36)
     out += _pos(22, 2)
@@ -116,11 +118,83 @@ def _colour_page() -> bytes:
     return bytes(out)
 
 
+def _accent(code: int, letter: bytes) -> bytes:
+    """A G2 diacritic applied to the next letter (SS2 <code> <letter>)."""
+    return bytes((C.SS2, code)) + letter
+
+
+def _test_card() -> bytes:
+    """A test card, in the television sense: a page whose correct appearance is
+    known and *stated on the page itself*.
+
+    Every line exercises one thing that really breaks in this chain — accents
+    (which come out wrong when the framing is not 7E1), the mosaic set, REP
+    run-length fills, the 40-column boundary, and the display attributes — and
+    says what it must look like. That way a garbled screen is diagnostic rather
+    than merely disappointing: the user can say *which* line is wrong, and a
+    photograph of it is enough to work from.
+    """
+    out = bytearray()
+    out.append(C.FF)
+    out += _pos(1, 11)
+    out += b"MIRE DE CONTROLE"
+
+    # 1. Accents (G2). Wrong framing mangles these first.
+    out += _pos(3, 2)
+    out += b"ACCENTS    "
+    out += _accent(0x42, b"E") + _accent(0x41, b"E") + _accent(0x41, b"A")
+    out += _accent(0x4B, b"C") + _accent(0x43, b"O") + _accent(0x48, b"I")
+    out += _pos(4, 2)
+    out += b"  attendu: E aigu, E grave, A grave,"
+    out += _pos(5, 2)
+    out += b"           C cedille, O circonflexe,"
+    out += _pos(6, 2)
+    out += b"           I trema"
+
+    # 2. Semigraphics: a solid bar, no gaps.
+    out += _pos(8, 2)
+    out += b"MOSAIQUE   "
+    out += _mosaic_line(20)
+    out += _pos(9, 2)
+    out += b"  attendu: barre pleine, sans trous"
+
+    # 3. REP run-length fill: one glyph, then a repeat count.
+    out += _pos(11, 2)
+    out += b"REPETITION "
+    out += b"-" + bytes((C.REP, C.POS_OFFSET + 19))  # the '-' plus 19 more = 20
+    out += _pos(12, 2)
+    out += b"  attendu: 20 tirets identiques"
+
+    # 4. The 40-column boundary: the bar must touch both edges, and not wrap.
+    out += _pos(14, 1)
+    out += b"|" + b"-" * 38 + b"|"
+    out += _pos(15, 2)
+    out += b"  attendu: barres aux colonnes 1 et 40"
+
+    # 5. Display attributes. On a monochrome set these are grey levels, which is
+    #    correct — hence "clair", not a colour name.
+    out += _pos(17, 2)
+    out += b"INVERSE    "
+    out += C.esc(C.ATTR_INVERSE_ON) + b"INVERSE" + C.esc(C.ATTR_INVERSE_OFF)
+    out += _pos(18, 2)
+    out += b"CLIGNOTANT "
+    out += C.esc(C.ATTR_BLINK_ON) + b"CLIGNOTE" + C.esc(C.ATTR_BLINK_OFF)
+
+    out += _pos(20, 2)
+    out += b"Tout correct: la chaine est bonne."
+    out += _pos(21, 2)
+    out += b"Sinon, notez la ligne fautive."
+    out += _pos(22, 2)
+    out += b"SOMMAIRE pour revenir."
+    return bytes(out)
+
+
 _PAGES = {
     "1": _info_page,
     "2": _demo_page,
     "3": _about_page,
     "4": _colour_page,
+    "5": _test_card,
 }
 
 

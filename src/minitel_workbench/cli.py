@@ -133,6 +133,15 @@ def _drain(bridge, seconds: float = 0.4) -> None:
         pass
 
 
+def cmd_selftest(args: argparse.Namespace) -> int:
+    from .diagnostics import run
+
+    print(f"Minitel Workbench {__version__} — your setup\n")
+    print(run().text())
+    print("\nSeeing a garbled screen? Connect the demo and open page 5, the test card.")
+    return 0
+
+
 def cmd_demo(args: argparse.Namespace) -> int:
     from .bridge import Bridge
     from .hardware.link import LoopbackLink
@@ -639,6 +648,9 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("scan", help="look for a Minitel connection").set_defaults(func=cmd_scan)
     sub.add_parser("doctor", help="check your setup").set_defaults(func=cmd_doctor)
     sub.add_parser("demo", help="try the whole stack offline").set_defaults(func=cmd_demo)
+    sub.add_parser(
+        "selftest", help="report card: what's connected, how fast, and what it is"
+    ).set_defaults(func=cmd_selftest)
     sub.add_parser("clear", help="clear a garbled Minitel screen").set_defaults(func=cmd_clear)
 
     p_setup = sub.add_parser("setup", help="detect the cable/driver and guide first-time setup")

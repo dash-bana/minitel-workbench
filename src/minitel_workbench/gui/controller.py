@@ -218,6 +218,21 @@ class WorkbenchController:
         link.close()
         return "Cleared the Minitel screen."
 
+    def self_test(self) -> str:
+        """The report card: what is connected, how fast, and what it is.
+
+        Needs the serial port to itself, so an open session is closed first —
+        the terminal cannot answer ENQROM while the bridge is pumping bytes at it.
+        """
+        from ..diagnostics import run
+
+        was_connected = self.is_connected()
+        self.disconnect()
+        report = run()
+        if was_connected:
+            report.add("·", "Session", "disconnected to run this test — reconnect when ready")
+        return report.text()
+
     def link_info(self) -> str:
         from ..benchmark import theoretical_cps
         from ..hardware.capability import profile_for_model

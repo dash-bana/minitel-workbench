@@ -76,6 +76,7 @@ class WorkbenchApp:
         )
         self.disconnect_btn.pack(side="left", padx=3)
         for label, action in (
+            ("Test my setup", self._self_test),
             ("Set up cable", self._setup),
             ("Clear screen", self._clear),
             ("Telephone", self._telephone),
@@ -144,6 +145,22 @@ class WorkbenchApp:
         self.c.disconnect()
         self._set_connected_widgets(False)
         self.message.config(text="Disconnected.")
+
+    def _self_test(self) -> None:
+        self.message.config(text="Testing your setup…")
+
+        def work() -> None:
+            text = self.c.self_test()
+            self.root.after(
+                0,
+                lambda: (
+                    self._show_text("Your setup", text),
+                    self.message.config(text=""),
+                    self._set_connected_widgets(self.c.is_connected()),
+                ),
+            )
+
+        threading.Thread(target=work, daemon=True).start()
 
     def _setup(self) -> None:
         self.message.config(text="Checking the cable and driver…")

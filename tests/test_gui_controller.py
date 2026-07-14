@@ -108,3 +108,23 @@ def test_keys_are_ignored_when_not_connected():
     c = WorkbenchController()
     assert c.send_text("1") is False
     assert c.send_function_key(C.Key.ENVOI) is False
+
+
+def test_test_card_is_reachable_and_states_its_expectations():
+    """Page 5 is the diagnostic card: it must render, and it must say what the
+    user is supposed to see — a card you can't check against is just a picture."""
+    c = WorkbenchController()
+    assert c.connect("demo") is True
+    assert _wait(lambda: _title(c) == "MINITEL WORKBENCH")
+
+    c.send_text("5")
+    c.send_function_key(C.Key.ENVOI)
+    assert _wait(lambda: _title(c) == "MIRE DE CONTROLE")
+
+    screen = c.screen_text()
+    for check in ("ACCENTS", "MOSAIQUE", "REPETITION", "INVERSE", "CLIGNOTANT"):
+        assert check in screen, f"the card must exercise {check}"
+    assert "ÉÈÀÇÔÏ" in screen  # the accents really are decoded, not mangled
+    assert screen.count("attendu") >= 4  # every check states its expected result
+    assert "-" * 20 in screen  # the REP run-length fill produced 20 identical glyphs
+    c.disconnect()
