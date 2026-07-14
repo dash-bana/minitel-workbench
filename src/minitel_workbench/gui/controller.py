@@ -240,9 +240,8 @@ class WorkbenchController:
             report.add("·", "Session", "disconnected to run this test — reconnect when ready")
         return (
             report.text()
-            + "\n\nScreen looking wrong? Connect the Local Demo and open page 5, the test"
-            "\ncard. It needs no network, so if it draws correctly the fault is out"
-            "\nthere, not here — and if it draws wrong, it says which part failed."
+            + "\n\nDisplay look off? For troubleshooting assistance, select Local Demo,"
+            "\nthen option 5 + Envoi."
         )
 
     def link_info(self) -> str:
