@@ -22,22 +22,35 @@ Retrocampus and other `ws://` services. The offline demo needs neither.
 minitel demo
 ```
 
-You'll see the Local Demo service drawn on a simulated screen. Type `1`, `2`, or
-`3` and press Enter; `s` returns to the menu; `q` quits. This exercises the real
-bridge, a transport, the Videotex decoder, and the screen model — with no
-hardware.
+You'll see the Local Demo service drawn on a simulated screen. Type a code from
+`1` to `5` and press Enter; `s` returns to the menu; `q` quits. This exercises
+the real bridge, a transport, the Videotex decoder, and the screen model — with
+no hardware.
+
+If a Minitel *is* connected, the demo runs **on the terminal itself**, and you
+can drive it from either keyboard.
 
 ## 3. Check your setup
 
 ```bash
-minitel doctor
+minitel selftest
 ```
 
-It reports your Python, which optional pieces are installed, and whether a
-Minitel connection is present — with a specific install hint for anything
-missing. A "no Minitel connection" result is completely normal.
+The report card: your cable and driver, the line speed and what it means in
+characters per second, which services are answering, and — if the terminal will
+say — what model it is. (`minitel doctor` is the shorter check: Python and
+which optional pieces are installed.) A "no cable" result is completely normal;
+most Minitels dial in by telephone.
 
-## 4. Connect a real Minitel
+## 4. When the screen looks wrong
+
+Open the demo's **page 5, the test card**. It draws accented characters, a
+mosaic bar, a run-length fill, the column boundary, and inverse and blinking
+text — and prints on the page what each one *should* look like. If a line is
+wrong, you know which part of the chain is at fault, and a photograph of the
+screen is enough to report it.
+
+## 5. Connect a real Minitel
 
 This is the path proven in the design notebook, on a 1984 Radiotechnique
 terminal. Do it on the machine the Minitel is plugged into.

@@ -67,7 +67,7 @@ Full walkthrough: [`docs/guides/getting-started.md`](docs/guides/getting-started
 |---------|------------|--------|
 | **Retrocampus** | BBS by Francesco Sblendorio — forums, files, games, AI (Mistral, ChatGPT for Patreon supporters). Free to access. | WebSocket · telephone |
 | **MiniPavi** | Gateway/directory to hundreds of Minitel services. | Telnet `go.minipavi.fr:516` · telephone |
-| **Local Demo** | Offline demo service. Exercises keyboard, display, and rendering with no hardware or network. | in-process |
+| **Local Demo** | Offline demo service, with a **test card** (page 5) that exercises accents, mosaics, run-length fills, the column boundary, inverse and blink — and states on screen what each must look like. Runs on the terminal itself when a cable is present, and with no hardware or network when it isn't. | in-process |
 
 The directory is data ([`src/minitel_workbench/services/directory.json`](src/minitel_workbench/services/directory.json)),
 so adding a service is a one-line contribution rather than a release.
@@ -75,24 +75,27 @@ so adding a service is a one-line contribution rather than a release.
 ## Status
 
 Tested against a physical Minitel (a 1984 Radiotechnique NFZ 300): the bridge
-connected to MiniPavi over the USB serial link, drew pages, and navigated by
-keyboard. Real MiniPavi output also drove the decoder's handling of Videotex REP
-run-length fills and Minitel PRO protocol sequences.
+connected to MiniPavi over the USB serial link, drew pages, and navigated from
+both the terminal's keyboard and the Mac's. The test card renders correctly on
+the CRT — accents, mosaics, REP run-length fills, inverse and blink — which
+exercises the decoder end to end. That terminal answers PRO3 commands but
+reports no ROM identity, which is normal for a first-generation Minitel 1.
 
 Working today: direct serial↔TCP bridge with Telnet filtering, WebSocket
-transport, auto-reconnect on idle drop, offline demo, auto-detect, persistent
-config, service directory, bidirectional recording, a CEPT level-2 colour mirror
-(ANSI + HTML), a telephone dialing assistant and service status monitor, a
-protocol inspector and `.vdt`/recording viewer, and a resources/museum directory
-with credits.
+transport, auto-reconnect on idle drop, offline demo with a test card,
+auto-detect, persistent config, service directory, bidirectional recording, a
+CEPT level-2 colour mirror (ANSI + HTML, blink included), a one-click setup
+report (cable, driver, line speed, terminal identity, services), a telephone
+dialing assistant and service status monitor, a protocol inspector and
+`.vdt`/recording viewer, and a resources/museum directory with credits.
 
 Also: a benchmark for the serial link, a local microserver that serves your own
 pages to the terminal, a Videotex page builder, and a `clear` command for a
 garbled screen. AI is treated as a service you connect to (e.g. Retrocampus)
 rather than something Workbench calls with an API key; see the Constitution.
 
-CLI surface: `list · scan · doctor · demo · clear · status · resources · call ·
-view · inspect · serve · benchmark · connect`.
+CLI surface: `list · scan · doctor · selftest · demo · clear · status ·
+resources · call · view · inspect · serve · benchmark · connect`.
 
 Planned: DRCS + serial-attribute rendering, a visual `.vdt` editor, a richer live
 GUI monitor, and a packaged `.app`.
