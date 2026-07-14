@@ -55,7 +55,10 @@ _PROFILES: dict[str, CapabilityProfile] = {
         notes="First-generation Minitel 1, reversible modem (1984). "
         "Peripheral DIN port VERIFIED against hardware (benchmark sweep): "
         "1200 7E1 renders clean; 300 produces no output; 4800 and 9600 garble. "
-        "Maximum verified clean speed 1200 baud.",
+        "Maximum verified clean speed 1200 baud. "
+        "Does NOT answer PRO1 ENQROM (verified 2026-07-14): the keyboard and "
+        "PRO3 replies come back fine, but the ROM reports no identity — so a "
+        "silent terminal is normal here, not a fault.",
     ),
     "generic": CapabilityProfile(
         model="Minitel (unrecognised model)",
