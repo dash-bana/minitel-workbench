@@ -41,10 +41,28 @@ Or the **Test my setup** button in the window.
 It tells you, in one place, what is actually connected and what is answering.
 Two lines are worth understanding:
 
-- **Line** — 1200 baud is not slow by mistake; it is the documented maximum for
-  a first-generation Minitel. 120 characters per second means a full 40×24 page
-  takes about eight seconds to paint. **A page that fills in visibly, from the
-  top, is not a bug.** It is what 1982 looked like.
+- **Line** — this is the speed the link is *currently* running at, not a ceiling.
+  Workbench starts every terminal at **1200 baud 7E1**, because that is the one
+  speed every Minitel supports and it is the documented maximum for a
+  first-generation Minitel 1. At 120 characters per second a full 40×24 page
+  takes about eight seconds to paint, so **a page that fills in visibly, from
+  the top, is not a bug** — it is what 1982 looked like.
+
+  **Later terminals are faster.** A Minitel 1B does 4800, a Minitel 2 or 12 does
+  9600 — eight times the speed, and pages that snap into place. If the report
+  card names your model, the line below it tells you what that model says it can
+  do. To find out what your terminal *actually* renders cleanly rather than what
+  it claims, run the sweep:
+
+  ```bash
+  minitel benchmark --all
+  ```
+
+  It tries each speed, shows you a page, and asks whether it looked right —
+  because the host cannot tell from its side (a USB adapter buffers the write
+  and returns immediately, and the terminal doesn't echo). Whatever happens, it
+  returns the link to a known-good 1200 7E1. A verified result is worth
+  reporting: the per-model profiles in Workbench are built from exactly this.
 - **Terminal** — Workbench asks the terminal to identify itself (the ROM
   signature). Later models answer with a make and model. An early Minitel 1 says
   nothing at all, and that is normal, not a fault. Workbench will never guess a
