@@ -32,16 +32,26 @@ def _home_page() -> bytes:
     out += b"MINITEL WORKBENCH"
     out += _pos(2, 2)
     out += _mosaic_line(36)
-    out += _pos(5, 4)
-    out += b"1 . INFORMATION"
-    out += _pos(7, 4)
-    out += b"2 . DEMO SEMIGRAPHIQUE"
+    # Say what this is on the page itself: a user looking at the terminal has no
+    # README in front of them.
+    out += _pos(4, 2)
+    out += b"Service local. Aucun reseau utilise."
+    out += _pos(5, 2)
+    out += b"Si ces pages sont correctes, votre"
+    out += _pos(6, 2)
+    out += b"Minitel et votre cable sont bons."
     out += _pos(9, 4)
-    out += b"3 . A PROPOS"
+    out += b"1 . POURQUOI CE SERVICE ?"
     out += _pos(11, 4)
-    out += b"4 . COULEURS"
+    out += b"2 . DEMO SEMIGRAPHIQUE"
     out += _pos(13, 4)
-    out += b"5 . MIRE DE CONTROLE"
+    out += b"3 . A PROPOS"
+    out += _pos(15, 4)
+    out += b"4 . COULEURS"
+    out += _pos(17, 4)
+    out += C.esc(C.ATTR_INVERSE_ON) + b"5 . MIRE DE CONTROLE" + C.esc(C.ATTR_INVERSE_OFF)
+    out += _pos(18, 4)
+    out += b"    (le test de reference)"
     out += _pos(20, 2)
     out += _mosaic_line(36)
     out += _pos(22, 2)
@@ -50,18 +60,42 @@ def _home_page() -> bytes:
 
 
 def _info_page() -> bytes:
+    """Why this service exists — the bisection argument, on the terminal itself.
+
+    Someone who clicks "Local Demo" and sees a menu is entitled to ask what it is
+    for. Answering only in the documentation answers nobody: they are looking at
+    a Minitel, not a README.
+    """
     out = bytearray()
     out.append(C.FF)
-    out += _pos(1, 10)
-    out += b"INFORMATION"
+    out += _pos(1, 6)
+    out += b"POURQUOI CE SERVICE ?"
+    out += _pos(3, 2)
+    out += b"Ces pages viennent de Workbench"
     out += _pos(4, 2)
-    out += b"Ceci est un service local de test."
-    out += _pos(6, 2)
-    out += b"Aucune connexion reseau n'est"
+    out += b"lui-meme: ni reseau, ni serveur,"
+    out += _pos(5, 2)
+    out += b"ni telephone."
     out += _pos(7, 2)
-    out += b"utilisee. Tout fonctionne sans"
+    out += b"Donc, quand un service affiche"
     out += _pos(8, 2)
-    out += b"cable ni telephone."
+    out += b"n'importe quoi, ce service repond"
+    out += _pos(9, 2)
+    out += b"a la seule question utile:"
+    out += _pos(11, 2)
+    out += C.esc(C.ATTR_INVERSE_ON) + b"le probleme vient-il d'ici," + C.esc(C.ATTR_INVERSE_OFF)
+    out += _pos(12, 2)
+    out += C.esc(C.ATTR_INVERSE_ON) + b"ou du reseau ?" + C.esc(C.ATTR_INVERSE_OFF)
+    out += _pos(14, 2)
+    out += b"Si ces pages sont correctes, tout"
+    out += _pos(15, 2)
+    out += b"va bien de votre cote: la panne est"
+    out += _pos(16, 2)
+    out += b"ailleurs."
+    out += _pos(18, 2)
+    out += b"Si elles sont fausses, la panne est"
+    out += _pos(19, 2)
+    out += b"ici. La page 5 (MIRE) vous dira ou."
     out += _pos(22, 2)
     out += b"SOMMAIRE pour revenir."
     return bytes(out)

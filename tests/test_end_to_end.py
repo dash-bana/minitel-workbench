@@ -30,7 +30,10 @@ def test_home_page_renders():
     try:
         drain(bridge)
         assert "MINITEL WORKBENCH" in decoder.screen.text
-        assert "INFORMATION" in decoder.screen.text
+        assert "POURQUOI CE SERVICE" in decoder.screen.text  # the menu
+        # The home page must say what this service is, for someone who is looking
+        # at a Minitel rather than at the documentation.
+        assert "Aucun reseau" in decoder.screen.text
     finally:
         bridge.close()
 
@@ -43,8 +46,9 @@ def test_navigate_to_info_and_back():
         link.feed_key(C.function_key_sequence(C.Key.ENVOI))
         drain(bridge)
         text = decoder.screen.text
-        assert "INFORMATION" in text
-        assert "reseau" in text  # body of the info page
+        assert "POURQUOI CE SERVICE" in text
+        assert "reseau" in text  # body of the page
+        assert "MIRE" in text  # and it points at the test card
 
         link.feed_key(C.function_key_sequence(C.Key.SOMMAIRE))
         drain(bridge)

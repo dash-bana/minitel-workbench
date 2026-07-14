@@ -76,7 +76,14 @@ class WorkbenchController:
         self._bridge = Bridge(link, transport, monitor=self.decoder)
         self.current_service = svc.name
         self.state = "connected"
-        self.message = f"Connected to {svc.name}"
+        if svc.transport_kind == "demo":
+            # Answer "what is this for?" where the question gets asked.
+            self.message = (
+                "Local Demo — no network: these pages come from Workbench itself. "
+                "Type 1 for why this exists, or 5 for the test card."
+            )
+        else:
+            self.message = f"Connected to {svc.name} — type a code and press Envoi."
         self.settings.default_service = svc.id
         try:
             self.settings.save()
@@ -231,7 +238,12 @@ class WorkbenchController:
         report = run()
         if was_connected:
             report.add("·", "Session", "disconnected to run this test — reconnect when ready")
-        return report.text()
+        return (
+            report.text()
+            + "\n\nScreen looking wrong? Connect the Local Demo and open page 5, the test"
+            "\ncard. It needs no network, so if it draws correctly the fault is out"
+            "\nthere, not here — and if it draws wrong, it says which part failed."
+        )
 
     def link_info(self) -> str:
         from ..benchmark import theoretical_cps

@@ -24,6 +24,10 @@ from .controller import FUNCTION_KEYS, WorkbenchController
 _CELL_W = 15
 _CELL_H = 22
 
+_DIAGNOSING_URL = (
+    "https://github.com/dash-bana/minitel-workbench/blob/main/docs/guides/diagnosing.md"
+)
+
 #: Mac keys that stand in for the Minitel function keys they most resemble.
 _KEYSYM_TO_FUNCTION = {
     "Return": C.Key.ENVOI,
@@ -80,6 +84,7 @@ class WorkbenchApp:
         self.disconnect_btn.pack(side="left", padx=3, expand=True, fill="x")
         for label, action in (
             ("Test my setup", self._self_test),
+            ("Screen wrong?", self._diagnosing),
             ("Set up cable", self._setup),
             ("Clear screen", self._clear),
             ("Telephone", self._telephone),
@@ -143,18 +148,46 @@ class WorkbenchApp:
 
     def _after_connect(self) -> None:
         self._busy = False
-        # Say how to drive it at the moment it becomes possible, rather than
-        # leaving a permanent hint above the keys.
-        text = self.c.message
-        if self.c.is_connected():
-            text += " — type a code and press Envoi."
-        self.message.config(text=text)
+        self.message.config(text=self.c.message)
         self._set_connected_widgets(self.c.is_connected())
 
     def _disconnect(self) -> None:
         self.c.disconnect()
         self._set_connected_widgets(False)
         self.message.config(text="Disconnected.")
+
+    def _diagnosing(self) -> None:
+        """The bisection argument, in the window — with the guide a click away.
+
+        The reasoning is stated here rather than only in the docs: someone whose
+        screen is garbled is looking at the app, not at a repository.
+        """
+        win = tk.Toplevel(self.root)
+        win.title("Screen wrong?")
+        win.geometry("560x340")
+        ttk.Label(
+            win,
+            text="Is it me, or is it them?",
+            font=("Helvetica", 15, "bold"),
+        ).pack(pady=(14, 6))
+        body = (
+            "Connect the Local Demo and open page 5, the test card.\n\n"
+            "The demo's pages come from Workbench itself — no network, no service, "
+            "nobody else to blame.\n\n"
+            "• If the test card draws correctly on your Minitel, everything from the "
+            "cable to the screen is proven. The fault is out on the network.\n\n"
+            "• If it draws wrong, the fault is here — and the card says what each line "
+            "should look like, so you can tell which part failed.\n\n"
+            "A photograph of a wrong test card is enough to report a bug."
+        )
+        msg = tk.Message(win, text=body, width=500, justify="left")
+        msg.pack(padx=18, anchor="w")
+        ttk.Button(
+            win,
+            text="Open the full guide",
+            takefocus=False,
+            command=lambda: webbrowser.open(_DIAGNOSING_URL),
+        ).pack(pady=12)
 
     def _self_test(self) -> None:
         self.message.config(text="Testing your setup…")
