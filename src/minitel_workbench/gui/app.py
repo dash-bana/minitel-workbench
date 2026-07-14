@@ -102,7 +102,7 @@ class WorkbenchApp:
         )
         self.canvas.pack(padx=16, pady=(2, 6))
 
-        keys = ttk.LabelFrame(self.root, text="Minitel keys — or just type on the screen")
+        keys = ttk.LabelFrame(self.root, text="Minitel keys")
         keys.pack(fill="x", padx=16, pady=(0, 6))
         krow = ttk.Frame(keys)
         krow.pack(fill="x", padx=8, pady=8)
@@ -143,7 +143,12 @@ class WorkbenchApp:
 
     def _after_connect(self) -> None:
         self._busy = False
-        self.message.config(text=self.c.message)
+        # Say how to drive it at the moment it becomes possible, rather than
+        # leaving a permanent hint above the keys.
+        text = self.c.message
+        if self.c.is_connected():
+            text += " — type a code and press Envoi."
+        self.message.config(text=text)
         self._set_connected_widgets(self.c.is_connected())
 
     def _disconnect(self) -> None:
