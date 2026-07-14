@@ -58,6 +58,13 @@ This is the fastest way to answer "is it me, or is it them?" — see
 This is the path proven in the design notebook, on a 1984 Radiotechnique
 terminal. Do it on the machine the Minitel is plugged into.
 
+**Haven't got the cable?** It is a USB-to-DIN 5-pin lead for the Minitel's
+peripheral socket — the one this project was built and tested with is
+[here on eBay](https://www.ebay.fr/itm/315958961464). That seller sometimes has
+restored Minitels, too. (Listings move; if it's gone, search eBay.fr for *câble
+Minitel USB DIN*.) You don't need it to use Workbench — the demo, the service
+directory and the telephone assistant all work without one.
+
 1. Power the Minitel on and leave it showing **F** (local mode). **Do not press
    Connexion/Fin** — that dials the internal phone modem, which isn't what the
    cable connection uses.

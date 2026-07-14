@@ -20,6 +20,11 @@ import subprocess
 from dataclasses import dataclass
 
 FTDI_VCP_URL = "https://ftdichip.com/drivers/vcp-drivers/"
+
+#: Where to get the cable, for someone who hasn't got one. The same seller has
+#: had restored Minitels. Listings move — the resources directory carries a
+#: fallback ("search eBay.fr for 'câble Minitel USB DIN'").
+CABLE_URL = "https://www.ebay.fr/itm/315958961464"
 _INSTALLER_NAME = "FTDIUSBSerialVCPDextInstaller.app"
 
 # Setup states
@@ -106,6 +111,10 @@ def guidance(state: SetupState, installer: str | None) -> list[str]:
             "No USB Minitel adapter detected.",
             "Plug the cable into the Mac and the Minitel's DIN socket —",
             "or, if you connect by telephone, you don't need the cable at all.",
+            "",
+            "Don't have the cable? It's a USB-to-DIN 5-pin lead:",
+            f"     {CABLE_URL}",
+            "That seller sometimes has restored Minitels, too.",
         ]
     # DRIVER_MISSING
     steps = [

@@ -12,7 +12,9 @@ from dataclasses import dataclass
 from importlib import resources as _res
 from pathlib import Path
 
-_KIND_ORDER = {"community": 0, "museum": 1, "history": 2, "article": 3, "tool": 4}
+# "hardware" comes first: someone with no cable (or no terminal) is the person
+# most in need of a pointer, and least able to find one.
+_KIND_ORDER = {"hardware": 0, "community": 1, "museum": 2, "history": 3, "article": 4, "tool": 5}
 
 
 @dataclass(frozen=True)

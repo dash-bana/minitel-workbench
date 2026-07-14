@@ -4,6 +4,14 @@
   "note": "Curated external resources. Per CONSTITUTION.md rule VIII/X, Workbench links out to the community's own archives and credits them, rather than absorbing their work. Opened in the user's normal browser, not squeezed onto a 40-column screen.",
   "resources": [
     {
+      "id": "cable-ebay",
+      "title": "Buy the USB↔Minitel adapter cable",
+      "url": "https://www.ebay.fr/itm/315958961464",
+      "kind": "hardware",
+      "language": "fr",
+      "note": "USB-to-DIN 5-pin cable for the Minitel's peripheral socket — the one this project was built and tested with. The same seller sometimes has restored Minitels. (eBay listings move; if it has gone, search eBay.fr for 'câble Minitel USB DIN'.)"
+    },
+    {
       "id": "musee-forum",
       "title": "Musée du Minitel — forum",
       "url": "https://forum.museeminitel.fr/",

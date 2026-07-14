@@ -23,3 +23,18 @@ def test_lookup_by_id():
 def test_all_resources_have_titles_and_urls():
     for r in load_resources():
         assert r.title and r.url.startswith("http")
+
+
+def test_where_to_buy_a_cable_comes_first():
+    """Someone with no cable is the least equipped to find one — so the pointer
+    to it leads the list, and the setup wizard repeats it when no cable is found."""
+    from minitel_workbench.hardware import setup
+
+    items = load_resources()
+    assert items[0].kind == "hardware"
+    assert "cable" in items[0].id
+
+    guidance = "\n".join(
+        setup.guidance(setup.SetupState(setup.NO_ADAPTER, False, False, False), None)
+    )
+    assert setup.CABLE_URL in guidance
