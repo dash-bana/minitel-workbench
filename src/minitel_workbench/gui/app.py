@@ -28,6 +28,17 @@ _DIAGNOSING_URL = (
     "https://github.com/dash-bana/minitel-workbench/blob/main/docs/guides/diagnosing.md"
 )
 
+#: Plain-language headings for the resource kinds, so a link's presence is
+#: explained by where it sits.
+_KIND_HEADINGS = {
+    "hardware": "Get a cable, or a Minitel",
+    "community": "Community",
+    "museum": "Museums & archives",
+    "history": "History",
+    "article": "Articles",
+    "tool": "Other people's tools — the ones this project stands on",
+}
+
 #: Mac keys that stand in for the Minitel function keys they most resemble.
 _KEYSYM_TO_FUNCTION = {
     "Return": C.Key.ENVOI,
@@ -239,16 +250,43 @@ class WorkbenchApp:
         threading.Thread(target=work, daemon=True).start()
 
     def _resources(self) -> None:
+        """Links, grouped and explained — a bare button with someone's repo name
+        on it tells the reader nothing about why it is there."""
         win = tk.Toplevel(self.root)
         win.title("Resources")
-        win.geometry("460x360")
+        win.geometry("560x560")
         ttk.Label(
             win, text="Explore Minitel history & community", font=("Helvetica", 14, "bold")
-        ).pack(pady=8)
+        ).pack(pady=(10, 6))
+
+        # The list is longer than the window, so it scrolls.
+        canvas = tk.Canvas(win, highlightthickness=0)
+        bar = ttk.Scrollbar(win, orient="vertical", command=canvas.yview)
+        body = ttk.Frame(canvas)
+        body.bind("<Configure>", lambda _e: canvas.configure(scrollregion=canvas.bbox("all")))
+        canvas.create_window((0, 0), window=body, anchor="nw", width=520)
+        canvas.configure(yscrollcommand=bar.set)
+        canvas.pack(side="left", fill="both", expand=True, padx=(12, 0), pady=(0, 12))
+        bar.pack(side="right", fill="y", pady=(0, 12))
+        canvas.bind_all("<MouseWheel>", lambda e: canvas.yview_scroll(-e.delta, "units"))
+
+        last_kind = None
         for res in self.c.resources():
-            ttk.Button(win, text=res.title, command=lambda u=res.url: webbrowser.open(u)).pack(
-                fill="x", padx=12, pady=2
-            )
+            if res.kind != last_kind:
+                last_kind = res.kind
+                ttk.Label(
+                    body, text=_KIND_HEADINGS.get(res.kind, res.kind.title()), foreground="#8fa1c7"
+                ).pack(anchor="w", pady=(10, 2))
+            ttk.Button(
+                body,
+                text=res.title,
+                takefocus=False,
+                command=lambda u=res.url: webbrowser.open(u),
+            ).pack(fill="x", pady=(2, 0))
+            if res.note:
+                tk.Message(body, text=res.note, width=500, foreground="#9aa4c0", padx=4).pack(
+                    anchor="w", pady=(0, 4)
+                )
 
     # -- keyboard ----------------------------------------------------------
     def _on_key(self, event: tk.Event) -> None:
