@@ -83,8 +83,8 @@ def _link_and_terminal(report: Report, adapter) -> None:
     report.add(
         "·",
         "Line",
-        f"{profile.default_speed} baud {profile.framing} "
-        f"— {cps:.0f} chars/sec, about {1000 / cps:.1f}s for a full page",
+        f"{profile.default_speed} baud {profile.framing} — {cps:.0f} chars/sec "
+        f"({1000 / cps:.0f}s a page)",
     )
 
     try:
@@ -100,11 +100,7 @@ def _link_and_terminal(report: Report, adapter) -> None:
         link.close()
 
     if identity is None:
-        report.add(
-            "·",
-            "Terminal",
-            "did not identify itself — normal on an early Minitel 1",
-        )
+        report.add("·", "Terminal", "connected; reports no model (normal on a Minitel 1)")
         return
 
     report.add("✓", "Terminal", identity.summary)

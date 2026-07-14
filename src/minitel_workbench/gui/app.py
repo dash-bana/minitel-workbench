@@ -72,10 +72,12 @@ class WorkbenchApp:
 
         tools = ttk.Frame(self.root)
         tools.pack(fill="x", padx=16, pady=(0, 8))
+        # Each button takes an equal share of the width, so the row spans the
+        # window like the key row below the screen.
         self.disconnect_btn = ttk.Button(
             tools, text="Disconnect", takefocus=False, command=self._disconnect, state="disabled"
         )
-        self.disconnect_btn.pack(side="left", padx=3)
+        self.disconnect_btn.pack(side="left", padx=3, expand=True, fill="x")
         for label, action in (
             ("Test my setup", self._self_test),
             ("Set up cable", self._setup),
@@ -85,7 +87,9 @@ class WorkbenchApp:
             ("What's online", self._status_check),
             ("Resources", self._resources),
         ):
-            ttk.Button(tools, text=label, takefocus=False, command=action).pack(side="left", padx=3)
+            ttk.Button(tools, text=label, takefocus=False, command=action).pack(
+                side="left", padx=3, expand=True, fill="x"
+            )
 
         ttk.Label(self.root, text="Minitel screen (live)").pack(anchor="w", padx=16)
         self.canvas = tk.Canvas(
@@ -227,7 +231,7 @@ class WorkbenchApp:
     def _show_text(self, title: str, text: str) -> None:
         win = tk.Toplevel(self.root)
         win.title(title)
-        win.geometry("520x300")
+        win.geometry("680x360")  # wide enough that the report's columns line up
         box = tk.Text(win, font=("Menlo", 11), wrap="word")
         box.insert("1.0", text or "(nothing)")
         box.config(state="disabled")
