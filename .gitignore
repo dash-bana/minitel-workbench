@@ -35,5 +35,3 @@ site/
 *.swp
 *.mtr
 
-# Personal launcher (bypass mode) — deliberately not published: see notes in the file.
-/cc
