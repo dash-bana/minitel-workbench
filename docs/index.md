@@ -10,6 +10,7 @@ bridge to services such as Retrocampus and MiniPavi.
 - **New here?** → [Getting started](guides/getting-started.md)
 - **Using a terminal?** → [Keyboard guide](guides/keyboard.md)
 - **Looking for places to visit?** → [Services](guides/services.md)
+- **Screen looks wrong?** → [Is it me, or is it them?](guides/diagnosing.md)
 - **Why is it built this way?** → [The Constitution](../CONSTITUTION.md) and
   [Architecture](../ARCHITECTURE.md)
 

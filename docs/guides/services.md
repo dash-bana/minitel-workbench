@@ -12,7 +12,10 @@ It's data, not code — adding a service is a one-object contribution.
 - **⭐ MiniPavi** — gateway/directory to hundreds of services. Its live in-terminal
   **Guide** is the authoritative list of current service codes (services come and
   go without the website changing). Reached over Telnet `go.minipavi.fr:516`.
-- **⭐ Local Demo** — offline, no hardware or network. Proves the whole chain.
+- **Local Demo** — offline: the pages come from inside Workbench, with no network
+  and no service involved. That is what makes it the thing to try when something
+  looks wrong: if the demo is correct, the fault isn't on your desk. See
+  [When the screen looks wrong](diagnosing.md).
 
 ## Community
 

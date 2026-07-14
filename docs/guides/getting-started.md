@@ -44,11 +44,14 @@ most Minitels dial in by telephone.
 
 ## 4. When the screen looks wrong
 
-Open the demo's **page 5, the test card**. It draws accented characters, a
-mosaic bar, a run-length fill, the column boundary, and inverse and blinking
-text — and prints on the page what each one *should* look like. If a line is
-wrong, you know which part of the chain is at fault, and a photograph of the
-screen is enough to report it.
+Connect the **Local Demo** and open **page 5, the test card**. The demo needs no
+network and no service, so if it draws correctly, everything from your cable to
+the screen is proven and the fault is out on the network. If it draws wrong, the
+fault is local — and the card tells you which part is at fault, because it
+prints on the page what each line should look like.
+
+This is the fastest way to answer "is it me, or is it them?" — see
+[When the screen looks wrong](diagnosing.md).
 
 ## 5. Connect a real Minitel
 

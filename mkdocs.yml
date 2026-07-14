@@ -5,6 +5,7 @@ theme:
 nav:
   - Home: index.md
   - Getting started: guides/getting-started.md
+  - When the screen looks wrong: guides/diagnosing.md
   - Keyboard guide: guides/keyboard.md
   - Services: guides/services.md
   - Studio (AI, serve): guides/studio.md

@@ -67,7 +67,7 @@ Full walkthrough: [`docs/guides/getting-started.md`](docs/guides/getting-started
 |---------|------------|--------|
 | **Retrocampus** | BBS by Francesco Sblendorio — forums, files, games, AI (Mistral, ChatGPT for Patreon supporters). Free to access. | WebSocket · telephone |
 | **MiniPavi** | Gateway/directory to hundreds of Minitel services. | Telnet `go.minipavi.fr:516` · telephone |
-| **Local Demo** | Offline demo service, with a **test card** (page 5) that exercises accents, mosaics, run-length fills, the column boundary, inverse and blink — and states on screen what each must look like. Runs on the terminal itself when a cable is present, and with no hardware or network when it isn't. | in-process |
+| **Local Demo** | Pages served from inside Workbench — no network, no service. That makes it the answer to *"is it me, or is it them?"*: if the demo draws correctly on your Minitel, the fault is out on the network, not on your desk. Its **test card** (page 5) states on screen what each line should look like. | in-process |
 
 The directory is data ([`src/minitel_workbench/services/directory.json`](src/minitel_workbench/services/directory.json)),
 so adding a service is a one-line contribution rather than a release.
