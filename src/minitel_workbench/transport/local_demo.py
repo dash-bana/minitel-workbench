@@ -10,6 +10,7 @@ demonstrable, and it is the backbone of the end-to-end test.
 from __future__ import annotations
 
 import os
+import unicodedata
 
 from ..channel import ByteChannel, ChannelClosed
 from ..videotex import constants as C
@@ -35,11 +36,11 @@ def _home_page() -> bytes:
     # Say what this is on the page itself: a user looking at the terminal has no
     # README in front of them.
     out += _pos(4, 2)
-    out += b"Service local. Aucun reseau utilise."
+    out += fr("Service local. Aucun réseau utilisé.")
     out += _pos(5, 2)
-    out += b"Si ces pages sont correctes, votre"
+    out += fr("Si ces pages sont correctes, votre")
     out += _pos(6, 2)
-    out += b"Minitel et votre cable sont bons."
+    out += fr("Minitel et votre câble sont bons.")
     out += _pos(9, 4)
     out += b"1 . POURQUOI CE SERVICE ?"
     out += _pos(11, 4)
@@ -69,21 +70,25 @@ def _info_page() -> bytes:
     out += _pos(1, 6)
     out += b"POURQUOI CE SERVICE ?"
     out += _pos(3, 2)
-    out += b"Ces pages viennent de Workbench"
+    out += fr("Ces pages viennent de Workbench")
     out += _pos(4, 2)
-    out += b"lui-meme: ni reseau, ni serveur,"
+    out += fr("lui-même : ni réseau, ni serveur,")
     out += _pos(5, 2)
-    out += b"ni telephone."
+    out += fr("ni téléphone.")
     out += _pos(7, 2)
-    out += b"Si ces pages sont correctes, tout"
+    out += fr("Si ces pages se chargent")
     out += _pos(8, 2)
-    out += b"va bien de votre cote: la panne est"
+    out += fr("correctement, tout va bien de votre")
     out += _pos(9, 2)
-    out += b"ailleurs."
+    out += fr("côté ; tout problème survenant en")
+    out += _pos(10, 2)
+    out += fr("fonctionnement normal a une autre")
     out += _pos(11, 2)
-    out += b"Si elles sont fausses, la panne est"
-    out += _pos(12, 2)
-    out += b"ici. La page 5 vous dira ou."
+    out += fr("origine.")
+    out += _pos(13, 2)
+    out += fr("Si elles sont fausses, la panne est")
+    out += _pos(14, 2)
+    out += fr("ici. La page 5 vous dira où.")
     out += _pos(22, 2)
     out += b"SOMMAIRE pour revenir."
     return bytes(out)
@@ -97,7 +102,7 @@ def _about_page() -> bytes:
     out += _pos(4, 2)
     out += b"Minitel Workbench"
     out += _pos(6, 2)
-    out += b"Toolkit libre pour preserver"
+    out += fr("Toolkit libre pour préserver")
     out += _pos(7, 2)
     out += b"et prolonger le Minitel."
     out += _pos(22, 2)
@@ -145,6 +150,38 @@ def _accent(code: int, letter: bytes) -> bytes:
     return bytes((C.SS2, code)) + letter
 
 
+#: Accented letters -> their G2 diacritic code. Videotex has no accented glyphs:
+#: the accent is a shift (SS2) applied to the *following* plain letter.
+_DIACRITICS = {
+    "̀": 0x41,  # grave
+    "́": 0x42,  # acute
+    "̂": 0x43,  # circumflex
+    "̈": 0x48,  # diaeresis
+    "̧": 0x4B,  # cedilla
+}
+
+
+def fr(text: str) -> bytes:
+    """Encode French text for the terminal, accents and all.
+
+    Written as ordinary French ("côté", "problème") and encoded here, rather than
+    spelled out at every call site — and rather than dropping the accents, which
+    is what the demo used to do and which reads as bad French, not as a choice.
+    """
+    out = bytearray()
+    for ch in unicodedata.normalize("NFD", text):
+        code = _DIACRITICS.get(ch)
+        if code is None:
+            out += ch.encode("ascii", "replace")
+            continue
+        # A combining mark follows its letter in Unicode, but *precedes* it in
+        # Videotex — so take the letter back off and re-emit it after the shift.
+        letter = bytes(out[-1:])
+        del out[-1:]
+        out += _accent(code, letter)
+    return bytes(out)
+
+
 def _test_card() -> bytes:
     """A test card, in the television sense: a page whose correct appearance is
     known and *stated on the page itself*.
@@ -162,6 +199,11 @@ def _test_card() -> bytes:
     out += b"TEST AFFICHAGE"
 
     # 1. Accents (G2). Wrong framing mangles these first.
+    #
+    # The specimens are accented; the "attendu" lines that describe them are
+    # deliberately plain ASCII, and must stay that way. They are read precisely
+    # when accents are broken — a caption that fails with the thing it describes
+    # is no use to anyone.
     out += _pos(3, 2)
     out += b"ACCENTS    "
     out += _accent(0x42, b"E") + _accent(0x41, b"E") + _accent(0x41, b"A")

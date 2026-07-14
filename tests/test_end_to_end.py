@@ -33,7 +33,7 @@ def test_home_page_renders():
         assert "POURQUOI CE SERVICE" in decoder.screen.text  # the menu
         # The home page must say what this service is, for someone who is looking
         # at a Minitel rather than at the documentation.
-        assert "Aucun reseau" in decoder.screen.text
+        assert "Aucun réseau" in decoder.screen.text
     finally:
         bridge.close()
 
@@ -47,7 +47,7 @@ def test_navigate_to_info_and_back():
         drain(bridge)
         text = decoder.screen.text
         assert "POURQUOI CE SERVICE" in text
-        assert "reseau" in text  # body of the page
+        assert "réseau" in text  # body of the page, accents and all
         assert "page 5" in text  # and it points at the display test
 
         link.feed_key(C.function_key_sequence(C.Key.SOMMAIRE))
@@ -93,3 +93,19 @@ def test_typed_characters_are_echoed_by_service():
         assert link.display  # something came back toward the terminal
     finally:
         bridge.close()
+
+
+def test_french_encoder_produces_videotex_accents():
+    """Accents are a G2 shift *before* the letter, not a character of their own.
+
+    Written as ordinary French in the source and encoded on the way out — so the
+    demo reads as French rather than as French with the accents knocked off.
+    """
+    from minitel_workbench.transport.local_demo import fr
+
+    assert fr("cote") == b"cote"  # nothing to do
+    assert fr("côté") == b"c" + bytes([C.SS2, 0x43]) + b"o" + b"t" + bytes([C.SS2, 0x42]) + b"e"
+
+    decoder = Decoder()
+    decoder.feed(fr("côté ; problème où"))
+    assert "côté ; problème où" in decoder.screen.text
